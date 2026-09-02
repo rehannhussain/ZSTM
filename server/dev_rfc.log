@@ -1,0 +1,184 @@
+
+**** Log file opened at 2026-09-01 13:03:38.348803 UTC+05:00 (Pakistan Standard Time), Encoding UTF-8
+NW RFC Library: Kernel variant, Release 750 Patch Level 11
+Compilation date          : Jan 25 2023 01:21:13
+CPIC library              : 753.2022.12.23 version 3
+NI library                : 40
+Kernel Release            : 753 Patch Level 1116
+Current working directory : D:\Projects\SAP\ZSTM\server
+Program                   : python
+Process ID                : 20904
+User                      : IT-REHAN
+Hardware                  : PC with Windows NT 12x AMD64 Level 6 (Mod 154 Step 4)
+Operating_system          : Windows NT 10.0
+Hostname                  : KHALAF
+IP address                : 10.3.2.33
+IPv6 address              : fe80::b94:1cd6:1988:7d0a
+Global trace level        : 0
+
+2026-09-01 13:03:38.338053 [34332] >> Info entry
+	Did not find config file D:\Projects\SAP\ZSTM\server\sapnwrfc.ini.
+2026-09-01 13:03:45.014982 [34332] >> Error entry
+	[Handle: 1419175357424	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       hostname 'HOST' unknown
+TIME        Tue Sep  1 13:03:45 2026
+RELEASE     753
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -2
+MODULE      D:/depot/bas/753_REL/src/base/ni/nixxhl.cpp
+LINE        198
+DETAIL      NiHLGetNodeAddr: hostname cached as unknown
+COUNTER     3
+
+
+**** Log file opened at 2026-09-01 13:07:20.321354 UTC+05:00 (Pakistan Standard Time), Encoding UTF-8
+NW RFC Library: Kernel variant, Release 750 Patch Level 11
+Compilation date          : Jan 25 2023 01:21:13
+CPIC library              : 753.2022.12.23 version 3
+NI library                : 40
+Kernel Release            : 753 Patch Level 1116
+Current working directory : D:\Projects\SAP\ZSTM\server
+Program                   : python
+Process ID                : 34332
+User                      : IT-REHAN
+Hardware                  : PC with Windows NT 12x AMD64 Level 6 (Mod 154 Step 4)
+Operating_system          : Windows NT 10.0
+Hostname                  : KHALAF
+IP address                : 10.3.2.33
+IPv6 address              : fe80::b94:1cd6:1988:7d0a
+Global trace level        : 0
+
+2026-09-01 13:07:20.320495 [29972] >> Error entry
+	[Handle: 2199771592208	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3315' not reached
+TIME        Tue Sep  1 13:07:20 2026
+RELEASE     753
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/753_REL/src/base/ni/nixxi.cpp
+LINE        3454
+DETAIL      NiPConnect2: 10.10.1.203:3315
+SYSTEM CALL connect
+ERRNO       10061
+ERRNO TEXT  WSAECONNREFUSED: Connection refused
+COUNTER     2
+
+
+**** Log file opened at 2026-09-01 13:08:53.758126 UTC+05:00 (Pakistan Standard Time), Encoding UTF-8
+NW RFC Library: Kernel variant, Release 750 Patch Level 11
+Compilation date          : Jan 25 2023 01:21:13
+CPIC library              : 753.2022.12.23 version 3
+NI library                : 40
+Kernel Release            : 753 Patch Level 1116
+Current working directory : D:\Projects\SAP\ZSTM\server
+Program                   : python
+Process ID                : 35164
+User                      : IT-REHAN
+Hardware                  : PC with Windows NT 12x AMD64 Level 6 (Mod 154 Step 4)
+Operating_system          : Windows NT 10.0
+Hostname                  : KHALAF
+IP address                : 10.3.2.33
+IPv6 address              : fe80::b94:1cd6:1988:7d0a
+Global trace level        : 0
+
+2026-09-01 13:08:53.757812 [40836] >> Error entry
+	[Handle: 2499568094912	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       service '33NN' unknown
+TIME        Tue Sep  1 13:08:53 2026
+RELEASE     753
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -3
+MODULE      D:/depot/bas/753_REL/src/base/ni/ninti.c
+LINE        939
+DETAIL      NiPGetServByName: '33NN' not found
+SYSTEM CALL getaddrinfo
+COUNTER     2
+
+
+**** Log file opened at 2026-09-01 13:09:51.656784 UTC+05:00 (Pakistan Standard Time), Encoding UTF-8
+NW RFC Library: Kernel variant, Release 750 Patch Level 11
+Compilation date          : Jan 25 2023 01:21:13
+CPIC library              : 753.2022.12.23 version 3
+NI library                : 40
+Kernel Release            : 753 Patch Level 1116
+Current working directory : D:\Projects\SAP\ZSTM\server
+Program                   : python
+Process ID                : 04548
+User                      : IT-REHAN
+Hardware                  : PC with Windows NT 12x AMD64 Level 6 (Mod 154 Step 4)
+Operating_system          : Windows NT 10.0
+Hostname                  : KHALAF
+IP address                : 10.3.2.33
+IPv6 address              : fe80::b94:1cd6:1988:7d0a
+Global trace level        : 0
+
+2026-09-01 13:09:51.656567 [05780] >> Error entry
+	[Handle: 2342405848304	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       hostname '10.10.1.203:3230' unknown
+TIME        Tue Sep  1 13:09:51 2026
+RELEASE     753
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -2
+MODULE      D:/depot/bas/753_REL/src/base/ni/nixxhl.cpp
+LINE        198
+DETAIL      NiHLGetNodeAddr: hostname cached as unknown
+COUNTER     5
+
+
+**** Log file opened at 2026-09-01 13:16:11.791853 UTC+05:00 (Pakistan Standard Time), Encoding UTF-8
+NW RFC Library: Kernel variant, Release 750 Patch Level 11
+Compilation date          : Jan 25 2023 01:21:13
+CPIC library              : 753.2022.12.23 version 3
+NI library                : 40
+Kernel Release            : 753 Patch Level 1116
+Current working directory : D:\Projects\SAP\ZSTM\server
+Program                   : python
+Process ID                : 23292
+User                      : IT-REHAN
+Hardware                  : PC with Windows NT 12x AMD64 Level 6 (Mod 154 Step 4)
+Operating_system          : Windows NT 10.0
+Hostname                  : KHALAF
+IP address                : 10.3.2.33
+IPv6 address              : fe80::b94:1cd6:1988:7d0a
+Global trace level        : 0
+
+2026-09-01 13:16:11.790538 [43208] >> Error entry
+	Error in receive: 18, no SAP ErrInfo available, 317
+2026-09-01 13:16:11.792627 [43208] >> Error entry
+	[Handle: 1371099078496	ConvID: 58541688	Target: 10.10.1.203	SysID: KTP	SysNr: 30	User: ZWFN_RFC	Client: 900	Language: 	Codepage: 4103]
+	RfcABAPMessageException: Key: , Code: RFC_ABAP_MESSAGE, Message: Name or password is incorrect (repeat logon)
+
+**** Log file opened at 2026-09-01 13:16:27.814736 UTC+05:00 (Pakistan Standard Time), Encoding UTF-8
+NW RFC Library: Kernel variant, Release 750 Patch Level 11
+Compilation date          : Jan 25 2023 01:21:13
+CPIC library              : 753.2022.12.23 version 3
+NI library                : 40
+Kernel Release            : 753 Patch Level 1116
+Current working directory : D:\Projects\SAP\ZSTM\server
+Program                   : python
+Process ID                : 40032
+User                      : IT-REHAN
+Hardware                  : PC with Windows NT 12x AMD64 Level 6 (Mod 154 Step 4)
+Operating_system          : Windows NT 10.0
+Hostname                  : KHALAF
+IP address                : 10.3.2.33
+IPv6 address              : fe80::b94:1cd6:1988:7d0a
+Global trace level        : 0
+
+2026-09-01 13:16:27.812188 [34000] >> Error entry
+	Error in receive: 18, no SAP ErrInfo available, 317
+2026-09-01 13:16:27.815100 [34000] >> Error entry
+	[Handle: 2321704935008	ConvID: 58595699	Target: 10.10.1.203	SysID: KTP	SysNr: 30	User: ZWFN_RFC	Client: 900	Language: 	Codepage: 4103]
+	RfcABAPMessageException: Key: , Code: RFC_ABAP_MESSAGE, Message: Name or password is incorrect (repeat logon)

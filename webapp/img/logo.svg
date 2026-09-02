@@ -1,0 +1,10 @@
+<!-- Placeholder logo. Replace this file with your licensed SAP / company logo
+     (keep the same path img/logo.svg, or point the Image src in the view at
+     your own img/logo.png). Sized for ~2rem header height. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="188" height="40" viewBox="0 0 188 40" role="img" aria-label="Finishing">
+	<rect x="0" y="4" width="32" height="32" rx="6" fill="#0a6ed1"/>
+	<path d="M9 26 L16 12 L23 26" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+	<circle cx="16" cy="20" r="2.4" fill="#ffffff"/>
+	<text x="44" y="21" font-family="'72','Arial',sans-serif" font-size="17" font-weight="700" fill="#0a3d62">FINISHING</text>
+	<text x="44" y="33" font-family="'72','Arial',sans-serif" font-size="10" font-weight="400" fill="#5b738b" letter-spacing="1.5">SANFOR · SNFR</text>
+</svg>

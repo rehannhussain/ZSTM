@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Stock Move — Storage Location Transfer</title>
+
+	<style>
+		html, body, #content {
+			height: 100%;
+			margin: 0;
+		}
+		/* stretch the root XML view so the Page fills the viewport */
+		#content .sapUiView {
+			height: 100%;
+		}
+		/* top-left logo in the header */
+		.stmLogo { height: 2rem; margin-right: 0.75rem; }
+
+		/* prominent SAP-themed scan bar */
+		.stmScanBar.sapMTB {
+			min-height: 3.25rem;
+			padding-top: 0.25rem;
+			padding-bottom: 0.25rem;
+			border-bottom: 3px solid var(--sapButton_Emphasized_Background, #0a6ed1);
+			box-shadow: inset 0 3px 0 0 var(--sapButton_Emphasized_Background, #0a6ed1);
+		}
+		.stmScanBar .sapMLabel { font-weight: 700; }
+	</style>
+
+	<!-- Local QR decoder (jsQR, MIT) for the iPad camera scan button. -->
+	<script src="lib/jsQR.js"></script>
+
+	<!-- UI5 is loaded from the public OpenUI5 CDN so this repo runs with no
+	     vendored runtime. For an offline / LAN shop-floor device, download the
+	     1.120.30 runtime into webapp/resources/ (see README) and change the src
+	     below to "resources/sap-ui-core.js". -->
+	<script
+		id="sap-ui-bootstrap"
+		src="https://sdk.openui5.org/1.120.30/resources/sap-ui-core.js"
+		data-sap-ui-theme="sap_horizon"
+		data-sap-ui-resourceroots='{"stock.transfer": "./"}'
+		data-sap-ui-oninit="module:sap/ui/core/ComponentSupport"
+		data-sap-ui-compatVersion="edge"
+		data-sap-ui-async="true">
+	</script>
+</head>
+<body class="sapUiBody">
+	<div
+		id="content"
+		class="sapUiSizeCompact"
+		data-sap-ui-component
+		data-name="stock.transfer"
+		data-id="container"
+		data-height="100%"
+		data-settings='{"id": "stockMoveApp"}'>
+	</div>
+</body>
+</html>

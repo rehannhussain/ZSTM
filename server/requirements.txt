@@ -1,0 +1,12 @@
+# Installable from PyPI with a plain `pip install -r requirements.txt`.
+# This is everything you need for mock/UI mode (SAP_RFC_MOCK=true).
+flask>=3.0
+
+# Optional: only needed for the base-unit (MARA.MEINS) lookup over HANA.
+# The app runs fine without it (falls back to DEFAULT_UOM).
+hdbcli>=2.19
+
+# NOTE: pyrfc (needed only for REAL posting, SAP_RFC_MOCK=false) is intentionally
+# NOT listed here. It is NOT on PyPI - `pip install pyrfc` will always fail. It
+# ships as prebuilt wheels on SAP's GitHub, built against the SAP NW RFC SDK.
+# See README.md ("PyRFC prerequisites") for the install steps.

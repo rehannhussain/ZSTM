@@ -1,0 +1,20 @@
+
+**** Log file opened at 2026-09-01 16:04:37.321898 UTC+05:00 (Pakistan Standard Time), Encoding UTF-8
+NW RFC Library: Kernel variant, Release 750 Patch Level 11
+Compilation date          : Jan 25 2023 01:21:13
+CPIC library              : 753.2022.12.23 version 3
+NI library                : 40
+Kernel Release            : 753 Patch Level 1116
+Current working directory : D:\Projects\SAP\ZSTM
+Program                   : python
+Process ID                : 04476
+User                      : IT-REHAN
+Hardware                  : PC with Windows NT 12x AMD64 Level 6 (Mod 154 Step 4)
+Operating_system          : Windows NT 10.0
+Hostname                  : KHALAF
+IP address                : 10.3.2.33
+IPv6 address              : fe80::b94:1cd6:1988:7d0a
+Global trace level        : 0
+
+2026-09-01 16:04:37.310739 [07468] >> Info entry
+	Did not find config file D:\Projects\SAP\ZSTM\sapnwrfc.ini.

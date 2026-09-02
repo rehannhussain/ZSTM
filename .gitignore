@@ -1,0 +1,19 @@
+# Secrets & certs
+server/.env
+server/cert.pem
+server/key.pem
+
+# Vendored OpenUI5 runtime (large, third-party; download per README)
+webapp/resources/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
