@@ -31,13 +31,14 @@
 	<!-- Local QR decoder (jsQR, MIT) for the iPad camera scan button. -->
 	<script src="lib/jsQR.js"></script>
 
-	<!-- UI5 is loaded from the public OpenUI5 CDN so this repo runs with no
-	     vendored runtime. For an offline / LAN shop-floor device, download the
-	     1.120.30 runtime into webapp/resources/ (see README) and change the src
-	     below to "resources/sap-ui-core.js". -->
+	<!-- UI5 runtime is vendored locally at webapp/resources/ (OpenUI5 1.120.30,
+	     gitignored ~540MB, third-party) so the app loads at LAN speed and needs
+	     no internet. To fall back to the CDN, set src to
+	     "https://sdk.openui5.org/1.120.30/resources/sap-ui-core.js". Re-create the
+	     local runtime after a fresh clone with the command in the README. -->
 	<script
 		id="sap-ui-bootstrap"
-		src="https://sdk.openui5.org/1.120.30/resources/sap-ui-core.js"
+		src="resources/sap-ui-core.js"
 		data-sap-ui-theme="sap_horizon"
 		data-sap-ui-resourceroots='{"stock.transfer": "./"}'
 		data-sap-ui-oninit="module:sap/ui/core/ComponentSupport"

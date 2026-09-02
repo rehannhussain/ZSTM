@@ -105,17 +105,21 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
 Handheld scanners (keyboard-wedge) work fine over plain HTTP — the camera is the
 only part that needs HTTPS.
 
-## Offline / LAN UI5 runtime (optional)
+## Offline / LAN UI5 runtime (required after a fresh clone)
 
-`webapp/index.html` bootstraps UI5 from the public OpenUI5 **CDN** by default, so
-the repo runs with nothing vendored. For an offline shop-floor device, download
-the 1.120.30 runtime into `webapp/resources/` (gitignored) and point the
-bootstrap `src` at `resources/sap-ui-core.js`:
+`webapp/index.html` bootstraps UI5 from the **local** runtime at
+`webapp/resources/` (OpenUI5 1.120.30) so the app loads at LAN speed and needs no
+internet. That folder is **gitignored** (~540 MB, third-party, not source), so it
+is missing after a fresh clone — **re-create it** before running:
 
 ```bash
-curl -sL -o /tmp/ui5.zip https://github.com/SAP/openui5/releases/download/1.120.30/openui5-runtime-1.120.30.zip
+curl -L -o /tmp/ui5.zip https://github.com/SAP/openui5/releases/download/1.120.30/openui5-runtime-1.120.30.zip
 python -c "import zipfile; z=zipfile.ZipFile('/tmp/ui5.zip'); z.extractall('webapp', [n for n in z.namelist() if n.startswith('resources/') and not n.endswith('/')])"
 ```
+
+To run from the public CDN instead (no vendoring), set the bootstrap `src` in
+`webapp/index.html` to
+`https://sdk.openui5.org/1.120.30/resources/sap-ui-core.js`.
 
 ## Notes & gotchas
 
