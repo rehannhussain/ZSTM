@@ -13,8 +13,8 @@
 		<customHeader>
 			<Bar>
 				<contentLeft>
-					<Image src="img/logo.svg" class="stmLogo" densityAware="false"/>
-					<Title text="{i18n>appTitle}" level="H1"/>
+					<Image src="img/kassim-logo.png" class="stmLogo" densityAware="false" tooltip="Kassim Denim"/>
+					<Title text="{i18n>headerTitle}" level="H2" class="stmHeaderTitle" wrapping="false"/>
 				</contentLeft>
 				<contentRight>
 					<ObjectStatus
@@ -60,14 +60,11 @@
 				<!-- Step 2: scan to add the doff to the list -->
 				<Panel headerText="{i18n>step2}" class="sapUiResponsiveMargin" width="auto">
 					<VBox class="sapUiSmallMargin">
-						<Toolbar class="stmScanBar">
-							<Label text="{i18n>scan}"/>
-							<Input id="inpScan" value="{form>/scanText}"
-								width="100%"
-								placeholder="{i18n>scanPh}"
-								enabled="{= ${form>/toSloc}.length > 0 &amp;&amp; !${form>/busy} }"
-								submit="onScan"/>
-						</Toolbar>
+						<Input id="inpScan" value="{form>/scanText}"
+							width="100%"
+							placeholder="{i18n>scanPh}"
+							enabled="{= ${form>/toSloc}.length > 0 &amp;&amp; !${form>/busy} }"
+							submit="onScan"/>
 						<HBox justifyContent="End" class="sapUiSmallMarginTop">
 							<Button id="btnScanQr" text="{i18n>scanCamera}"
 								icon="sap-icon://bar-code" type="Emphasized"
@@ -112,15 +109,15 @@
 							<Column><Text text="{i18n>batch}"/></Column>
 							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>material}"/></Column>
 							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colArticle}"/></Column>
-							<Column hAlign="Center"><Text text="{i18n>colFrom}"/></Column>
-							<Column hAlign="End"><Text text="{i18n>colDoffLen}"/></Column>
-							<Column hAlign="End" width="6rem"><Text text="{i18n>colMoveLen}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="{i18n>colFrom}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="End"><Text text="{i18n>colDoffLen}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="End" width="6rem"><Text text="{i18n>colMoveLen}"/></Column>
 							<Column hAlign="Center" width="2.5rem"/>
 						</columns>
 						<items>
 							<ColumnListItem>
 								<cells>
-									<ObjectIdentifier title="{form>batch}"/>
+									<ObjectIdentifier title="{form>batch}" text="{form>doffBatchNo}"/>
 									<Text text="{form>material}"/>
 									<Text text="{form>article}"/>
 									<Text text="{form>sloc}"/>
@@ -150,10 +147,10 @@
 						<columns>
 							<Column><Text text="{i18n>time}"/></Column>
 							<Column><Text text="{i18n>matdoc}"/></Column>
-							<Column><Text text="{i18n>material}"/></Column>
-							<Column><Text text="{i18n>batch}"/></Column>
-							<Column hAlign="End"><Text text="{i18n>qty}"/></Column>
-							<Column><Text text="{i18n>route}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>material}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>batch}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="End"><Text text="{i18n>qty}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>route}"/></Column>
 						</columns>
 						<items>
 							<ColumnListItem>

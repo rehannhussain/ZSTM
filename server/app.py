@@ -54,6 +54,34 @@ def _load_dotenv():
 _load_dotenv()
 
 
+def _register_nwrfc_sdk():
+    """Make the SAP NW RFC SDK's DLLs (sapnwrfc.dll + icu*57.dll) loadable on
+    Windows without the user editing PATH. PyRFC dlopen's sapnwrfc.dll, which in
+    turn needs the ICU 57 DLLs beside it; if that folder isn't on the DLL search
+    path the loader fails with 'Could not open the ICU common library'
+    (icuuc57/icudt57/icuin57). We add <SAPNWRFC_HOME>\\lib to the search path.
+    No-op off Windows or when the SDK isn't found."""
+    if os.name != "nt":
+        return
+    home = os.environ.get("SAPNWRFC_HOME", r"C:\SAP\nwrfcsdk")
+    libdir = os.path.join(home, "lib")
+    if not os.path.isdir(libdir):
+        return
+    # Python 3.8+: PATH alone no longer affects DLL resolution for extensions.
+    add = getattr(os, "add_dll_directory", None)
+    if add:
+        try:
+            add(libdir)
+        except OSError:
+            pass
+    # Keep PATH in sync too (helps the SDK's own internal lookups / older Pythons).
+    if libdir.lower() not in os.environ.get("PATH", "").lower():
+        os.environ["PATH"] = libdir + os.pathsep + os.environ.get("PATH", "")
+
+
+_register_nwrfc_sdk()
+
+
 def _envbool(name, default=False):
     return os.environ.get(name, str(default)).strip().lower() in ("1", "true", "yes", "on")
 

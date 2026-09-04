@@ -14,18 +14,37 @@
 		#content .sapUiView {
 			height: 100%;
 		}
-		/* top-left logo in the header */
-		.stmLogo { height: 2rem; margin-right: 0.75rem; }
+
+		/* Use the device's native UI font instead of SAP "72" (!important so it
+		   wins over the theme's own --sapFont* custom properties, which load
+		   asynchronously after this block). SAP-icons keep their own font. */
+		:root {
+			--sapFontFamily: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, "Helvetica Neue", Arial, sans-serif !important;
+			--sapFontHeaderFamily: var(--sapFontFamily) !important;
+			--sapFontLightFamily: var(--sapFontFamily) !important;
+			--sapFontBoldFamily: var(--sapFontFamily) !important;
+			--sapFontSemiboldFamily: var(--sapFontFamily) !important;
+			--sapFontSemiboldDuplexFamily: var(--sapFontFamily) !important;
+		}
+
+		/* top-left Kassim logo in the header (native 100x18 — keep it small so it
+		   stays crisp; replace img/kassim-logo.png with a hi-res asset to enlarge) */
+		.stmLogo { height: 1.15rem; width: auto; margin-right: 0.6rem; }
+		.stmHeaderTitle { font-weight: 600; }
 
 		/* prominent SAP-themed scan bar */
 		.stmScanBar.sapMTB {
-			min-height: 3.25rem;
+			min-height: 3rem;
 			padding-top: 0.25rem;
 			padding-bottom: 0.25rem;
 			border-bottom: 3px solid var(--sapButton_Emphasized_Background, #0a6ed1);
 			box-shadow: inset 0 3px 0 0 var(--sapButton_Emphasized_Background, #0a6ed1);
 		}
-		.stmScanBar .sapMLabel { font-weight: 700; }
+		.stmScanBar .sapMLabel { font-weight: 600; }
+
+		/* On phones the doff table collapses to popin (card-like) rows; give the
+		   popped-in block a touch more breathing room so each row reads as a card. */
+		.sapMListTblSubRow { padding-bottom: 0.25rem; }
 	</style>
 
 	<!-- Local QR decoder (jsQR, MIT) for the iPad camera scan button. -->
