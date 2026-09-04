@@ -278,26 +278,38 @@ _DOFF_SQL = (
     "ORDER BY B.BATCH_NO"
 )
 
-# Current unrestricted-use stock for a batch at a storage location. On S/4HANA
-# the MARD/MCHB aggregates are not maintained, so stock is summed from MATDOC
-# (INSMK='' unrestricted, SOBKZ='' own stock; SHKZG S=receipt +, H=issue -).
-_STOCK_SQL = (
-    "SELECT SUM(CASE WHEN SHKZG = 'S' THEN TO_DECIMAL(MENGE) ELSE -TO_DECIMAL(MENGE) END) "
+# The doff master's OUT_MATNR is an unreliable placeholder on some beams, so the
+# real material for the move is derived from the batch itself. Stock (and thus the
+# stocked material) is read from MATDOC on S/4HANA - the MARD/MCHB aggregates are
+# not maintained. INSMK='' unrestricted, SOBKZ='' own stock; SHKZG S=receipt(+)/H=issue(-).
+_MATDOC_MAT_SQL = (
+    "SELECT MATNR, SUM(CASE WHEN SHKZG = 'S' THEN TO_DECIMAL(MENGE) ELSE -TO_DECIMAL(MENGE) END) AS NET "
     "FROM SAPHANADB.MATDOC "
-    "WHERE MANDT = ? AND MATNR = ? AND WERKS = ? AND LGORT = ? AND CHARG = ? "
-    "AND INSMK = '' AND SOBKZ = ''"
+    "WHERE MANDT = ? AND WERKS = ? AND LGORT = ? AND CHARG = ? AND INSMK = '' AND SOBKZ = '' "
+    "GROUP BY MATNR ORDER BY NET DESC"
 )
+# Authoritative material<->batch link (batch master), used when the batch has no
+# stock at the source location so a deficit message still names the right material.
+_MCH1_SQL = "SELECT MATNR FROM SAPHANADB.MCH1 WHERE MANDT = ? AND CHARG = ? LIMIT 1"
 
 
-def _unrestricted(cur, matnr_padded, plant, sloc, batch):
-    """Net unrestricted-use quantity for a batch at a storage location (Decimal)."""
-    cur.execute(_STOCK_SQL, [MANDT, matnr_padded, plant, sloc, batch])
+def _batch_stock(cur, plant, sloc, batch):
+    """Resolve (material, unrestricted_qty) for a batch at a storage location.
+
+    The material is the one the batch is actually stocked under at that location
+    (from MATDOC); if there is no stock there, the material falls back to the batch
+    master (MCH1) and the quantity to 0. Returns (matnr_padded, Decimal)."""
+    cur.execute(_MATDOC_MAT_SQL, [MANDT, plant, sloc, batch])
+    for matnr, net in cur.fetchall():
+        try:
+            qty = Decimal(str(net)) if net is not None else Decimal(0)
+        except (InvalidOperation, ValueError, TypeError):
+            qty = Decimal(0)
+        if qty > 0:
+            return (matnr or "").strip(), qty
+    cur.execute(_MCH1_SQL, [MANDT, batch])
     row = cur.fetchone()
-    val = row[0] if row else None
-    try:
-        return Decimal(str(val)) if val is not None else Decimal(0)
-    except (InvalidOperation, ValueError, TypeError):
-        return Decimal(0)
+    return ((row[0] or "").strip() if row else ""), Decimal(0)
 
 
 def resolve_doff(lot, loom, beam):
@@ -320,12 +332,15 @@ def resolve_doff(lot, loom, beam):
         cur = conn.cursor()
         cur.execute(_DOFF_SQL, [MANDT, lot, beam, loom])
         rows = cur.fetchall()
-        for sloc, batch, matnr, length, uom, doffbn, article in rows:
-            matnr_raw = (matnr or "").strip()          # ALPHA-padded, as stored
-            mat = str(int(matnr_raw)) if matnr_raw.isdigit() else matnr_raw
+        for sloc, batch, out_matnr, length, uom, doffbn, article in rows:
             sloc = (sloc or "").strip()
             batch = (batch or "").strip()
-            avail = _unrestricted(cur, matnr_raw, DOFF_PLANT, sloc, batch)
+            # Material comes from the batch's actual stock, not the doff OUT_MATNR
+            # (which is an unreliable placeholder); OUT_MATNR is only a last resort.
+            matnr_raw, avail = _batch_stock(cur, DOFF_PLANT, sloc, batch)
+            if not matnr_raw:
+                matnr_raw = (out_matnr or "").strip()
+            mat = str(int(matnr_raw)) if matnr_raw.isdigit() else matnr_raw
             lines.append({
                 "plant": DOFF_PLANT,
                 "sloc": sloc,
