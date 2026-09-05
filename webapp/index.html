@@ -34,6 +34,18 @@
 	<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="img/splash/splash-iphone-15-promax-portrait.png">
 	<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="img/splash/splash-iphone-mini-x-portrait.png">
 
+	<!-- Register the service worker (required for Android to install/launch as a
+	     standalone app). Needs a trusted HTTPS cert to register on Android. -->
+	<script>
+		if ("serviceWorker" in navigator) {
+			window.addEventListener("load", function () {
+				navigator.serviceWorker.register("sw.js").catch(function (e) {
+					console.warn("SW registration failed:", e);
+				});
+			});
+		}
+	</script>
+
 	<style>
 		html, body, #content {
 			height: 100%;

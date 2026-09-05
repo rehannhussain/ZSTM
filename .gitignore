@@ -2,6 +2,11 @@
 server/.env
 server/cert.pem
 server/key.pem
+server/rootCA.key
+server/rootCA.pem
+server/rootCA.srl
+server/*.csr
+server/leaf.ext
 
 # Vendored OpenUI5 runtime (large, third-party; download per README)
 webapp/resources/
