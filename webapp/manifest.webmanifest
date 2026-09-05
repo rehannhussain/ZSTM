@@ -1,0 +1,16 @@
+{
+  "name": "Kassim Stock Move",
+  "short_name": "Stock move",
+  "description": "Scan doff QR labels and post storage-location transfers (movement type 311).",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1F3D6B",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "img/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "img/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -28,10 +28,15 @@ document number so the UI can be exercised end to end.
 
 import os
 import re
+import mimetypes
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
 from flask import Flask, request, jsonify, send_from_directory
+
+# Serve the PWA manifest with the correct content type (some Python installs
+# don't know .webmanifest, and browsers ignore a manifest served as octet-stream).
+mimetypes.add_type("application/manifest+json", ".webmanifest")
 
 # ---------------------------------------------------------------------------
 # Configuration
