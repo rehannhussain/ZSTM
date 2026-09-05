@@ -14,10 +14,10 @@
 			<Bar class="stmHeaderBar">
 				<contentLeft>
 					<Image src="img/kassim-logo.png" class="stmLogo" densityAware="false" tooltip="Kassim Denim"/>
-					<VBox class="sapUiTinyMarginBegin" justifyContent="Center">
+					<HBox class="sapUiTinyMarginBegin" alignItems="Center">
 						<Title text="{i18n>headerTitle}" level="H2" class="stmHeaderTitle" wrapping="false"/>
-						<Text text="{i18n>headerSub}" class="stmHeaderSub"/>
-					</VBox>
+						<Text text="· {i18n>headerSub}" class="stmHeaderSub sapUiTinyMarginBegin"/>
+					</HBox>
 				</contentLeft>
 				<contentRight>
 					<ObjectStatus class="stmSap"

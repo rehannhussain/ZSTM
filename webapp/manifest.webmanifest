@@ -1,6 +1,6 @@
 {
-  "name": "Kassim Stock Move",
-  "short_name": "Stock move",
+  "name": "Kassim Stock Movement",
+  "short_name": "Stock Movement",
   "description": "Scan doff QR labels and post storage-location transfers (movement type 311).",
   "start_url": "./",
   "scope": "./",

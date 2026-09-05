@@ -11,8 +11,8 @@
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="default">
-	<meta name="apple-mobile-web-app-title" content="Stock move">
-	<meta name="application-name" content="Stock move">
+	<meta name="apple-mobile-web-app-title" content="Stock Movement">
+	<meta name="application-name" content="Stock Movement">
 	<link rel="icon" type="image/png" sizes="32x32" href="img/icons/favicon-32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="img/icons/favicon-16.png">
 	<link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
@@ -101,6 +101,13 @@
 		.stmHeaderBar .sapMBarLeft .sapMFlexBox { height: auto !important; }
 		.stmHeaderTitle .sapMTitle, .stmHeaderTitle { font-size: 1rem; font-weight: 600; line-height: 1.15; margin: 0; }
 		.stmHeaderSub .sapMText, .stmHeaderSub { line-height: 1.15; }
+		/* on narrow phones keep the header one clean line: logo + title + status.
+		   Hide the subtitle and collapse the SAP status to its icon only. */
+		@media (max-width: 540px) {
+			.stmHeaderSub { display: none !important; }
+			.stmSap .sapMObjStatusText { display: none !important; }
+			.stmSap.sapMObjStatus { padding: 4px 6px; }
+		}
 		.stmHeaderSub .sapMText, .stmHeaderSub { color: #8a8f98; font-size: 0.7rem; line-height: 1; }
 		.stmSap.sapMObjStatus { padding: 2px 9px; border-radius: 20px; font-weight: 500; }
 		.stmSap.sapMObjStatusSuccess { background: #e6f4ea; }
