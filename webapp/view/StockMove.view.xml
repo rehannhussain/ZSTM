@@ -11,13 +11,16 @@
 	<Page id="page" showHeader="true">
 
 		<customHeader>
-			<Bar>
+			<Bar class="stmHeaderBar">
 				<contentLeft>
 					<Image src="img/kassim-logo.png" class="stmLogo" densityAware="false" tooltip="Kassim Denim"/>
-					<Title text="{i18n>headerTitle}" level="H2" class="stmHeaderTitle" wrapping="false"/>
+					<VBox class="sapUiTinyMarginBegin" justifyContent="Center">
+						<Title text="{i18n>headerTitle}" level="H2" class="stmHeaderTitle" wrapping="false"/>
+						<Text text="{i18n>headerSub}" class="stmHeaderSub"/>
+					</VBox>
 				</contentLeft>
 				<contentRight>
-					<ObjectStatus
+					<ObjectStatus class="stmSap"
 						text="{= ${form>/sapOnline} ? (${form>/mock} ? ${i18n>sapMock} : ${i18n>sapOnline}) : ${i18n>sapOffline} }"
 						state="{= ${form>/sapOnline} ? (${form>/mock} ? 'Warning' : 'Success') : 'Error' }"
 						icon="{= ${form>/sapOnline} ? 'sap-icon://connected' : 'sap-icon://disconnected' }"/>
@@ -40,101 +43,116 @@
 			<l:Grid defaultSpan="XL6 L6 M12 S12" hSpacing="1" vSpacing="1" class="sapUiSmallMargin">
 
 				<!-- Step 1: pick the destination (gates scanning) -->
-				<Panel headerText="{i18n>step1}" class="sapUiResponsiveMargin" width="auto">
-					<f:SimpleForm layout="ColumnLayout" columnsM="1" columnsL="1" editable="true">
-						<Label text="{i18n>plant}"/>
-						<Input id="inpPlant" value="3000" editable="false"/>
-						<Label text="{i18n>toSloc}"/>
-						<Input id="inpToSloc" value="{form>/toSloc}" editable="false"/>
-						<Label text="{i18n>operator}"/>
+				<Panel class="stmCard sapUiResponsiveMargin" width="auto">
+					<headerToolbar>
+						<OverflowToolbar class="stmStepBar">
+							<core:Icon src="sap-icon://map-2" class="stmStepIcon"/>
+							<Title text="{i18n>step1}" class="stmStepTitle"/>
+						</OverflowToolbar>
+					</headerToolbar>
+					<VBox>
+						<HBox>
+							<VBox width="50%" class="sapUiTinyMarginEnd">
+								<Label text="{i18n>plant}" class="stmFieldLbl"/>
+								<Input id="inpPlant" value="3000" editable="false" class="stmChip"/>
+							</VBox>
+							<VBox width="50%">
+								<Label text="{i18n>toSlocShort}" class="stmFieldLbl"/>
+								<Input id="inpToSloc" value="{form>/toSloc}" editable="false" class="stmChip"/>
+							</VBox>
+						</HBox>
+						<Label text="{i18n>operator}" class="stmFieldLbl sapUiSmallMarginTop"/>
 						<Input id="inpOperator" value="{form>/operator}"
 							maxLength="12" placeholder="{i18n>operatorPh}"
 							enabled="{= !${form>/busy} }"/>
-					</f:SimpleForm>
-					<MessageStrip
-						text="{i18n>gateHint}"
-						type="Information" showIcon="true"
-						class="sapUiTinyMargin"/>
+					</VBox>
 				</Panel>
 
 				<!-- Step 2: scan to add the doff to the list -->
-				<Panel headerText="{i18n>step2}" class="sapUiResponsiveMargin" width="auto">
-					<VBox class="sapUiSmallMargin">
+				<Panel class="stmCard stmScanCard sapUiResponsiveMargin" width="auto">
+					<headerToolbar>
+						<OverflowToolbar class="stmStepBar">
+							<core:Icon src="sap-icon://bar-code" class="stmStepIcon"/>
+							<Title text="{i18n>step2}" class="stmStepTitle"/>
+						</OverflowToolbar>
+					</headerToolbar>
+					<VBox>
 						<Input id="inpScan" value="{form>/scanText}"
-							width="100%"
+							width="100%" class="stmScanInput"
 							placeholder="{i18n>scanPh}"
 							enabled="{= ${form>/toSloc}.length > 0 &amp;&amp; !${form>/busy} }"
 							submit="onScan"/>
-						<HBox justifyContent="End" class="sapUiSmallMarginTop">
+						<HBox width="100%" class="sapUiSmallMarginTop">
 							<Button id="btnScanQr" text="{i18n>scanCamera}"
 								icon="sap-icon://bar-code" type="Emphasized"
 								press="onScanQr"
-								enabled="{= ${form>/toSloc}.length > 0 &amp;&amp; !${form>/busy} }"/>
+								enabled="{= ${form>/toSloc}.length > 0 &amp;&amp; !${form>/busy} }">
+								<layoutData><FlexItemData growFactor="1"/></layoutData>
+							</Button>
 							<Button id="btnAdd" text="{i18n>add}"
 								icon="sap-icon://add" type="Default"
 								press="onScan"
 								class="sapUiTinyMarginBegin"
-								enabled="{= ${form>/toSloc}.length > 0 &amp;&amp; ${form>/scanText}.length > 0 &amp;&amp; !${form>/busy} }"/>
+								enabled="{= ${form>/toSloc}.length > 0 &amp;&amp; ${form>/scanText}.length > 0 &amp;&amp; !${form>/busy} }">
+								<layoutData><FlexItemData growFactor="1"/></layoutData>
+							</Button>
 						</HBox>
-						<MessageStrip
-							text="{i18n>scanAddHint}"
-							type="Information" showIcon="true"
-							class="sapUiSmallMarginTop"/>
 					</VBox>
 				</Panel>
 
 				<!-- Step 3: the list of doffs; linebreak keeps it and history on their own row -->
-				<Panel class="sapUiResponsiveMargin" width="auto">
+				<Panel class="stmCard sapUiResponsiveMargin" width="auto">
 					<layoutData>
 						<l:GridData span="XL6 L6 M12 S12" linebreakL="true" linebreakXL="true"/>
 					</layoutData>
 					<headerToolbar>
-						<Toolbar>
-							<Title text="{i18n>cartTitle}" level="H2"/>
+						<OverflowToolbar class="stmStepBar">
+							<core:Icon src="sap-icon://cart" class="stmStepIcon"/>
+							<Title text="{i18n>cartTitle}" class="stmStepTitle"/>
 							<ToolbarSpacer/>
 							<Text text="{= ${form>/cart}.length + ' ' + ${i18n>doffs} }"
 								visible="{= ${form>/cart}.length > 0 }"
-								class="sapUiTinyMarginEnd"/>
-							<Button id="btnPost"
-								text="{= ${i18n>post} + ' (' + ${form>/cart}.length + ')' }"
-								icon="sap-icon://cart" type="Accept"
-								press="onPostMove"
-								enabled="{= ${form>/cart}.length > 0 &amp;&amp; ${form>/toSloc}.length > 0 &amp;&amp; !${form>/busy} }"/>
-						</Toolbar>
+								class="stmMeta"/>
+						</OverflowToolbar>
 					</headerToolbar>
 					<Table id="tblCart" items="{form>/cart}" inset="false"
 						class="sapUiSizeCompact" fixedLayout="false"
 						noDataText="{i18n>emptyCart}">
 						<columns>
 							<Column><Text text="{i18n>batch}"/></Column>
-							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>material}"/></Column>
-							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colArticle}"/></Column>
-							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="{i18n>colFrom}"/></Column>
-							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="End"><Text text="{i18n>colDoffLen}"/></Column>
-							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="End" width="6rem"><Text text="{i18n>colMoveLen}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="WithoutHeader"><Text text="{i18n>colDetail}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true" popinDisplay="Block" hAlign="End" width="9rem"><Text text="{i18n>colMoveLen}"/></Column>
 							<Column hAlign="Center" width="2.5rem"/>
 						</columns>
 						<items>
 							<ColumnListItem>
 								<cells>
-									<ObjectIdentifier title="{form>batch}" text="{form>doffBatchNo}"/>
-									<Text text="{form>material}"/>
-									<Text text="{form>article}"/>
-									<Text text="{form>sloc}"/>
-									<Text text="{form>doffLength} {form>uom}"/>
-									<Input value="{form>qty}"
-										type="Number"
-										width="5rem"
-										maxLength="6"
-										textAlign="End"
-										placeholder="{= ${i18n>maxHint} + ' ' + ${form>doffLength} }"
-										liveChange="onLengthChange"/>
+									<ObjectIdentifier title="{form>batch}" text="{i18n>colDoff} {form>doffBatchNo}"/>
+									<Text class="stmMeta" text="{form>material}  ·  {i18n>colArticle} {form>article}  ·  {form>sloc} → {form>/toSloc}"/>
+									<HBox alignItems="Center" justifyContent="End">
+										<Input value="{form>qty}"
+											type="Number"
+											width="5rem"
+											maxLength="6"
+											textAlign="End"
+											class="stmLen"
+											placeholder="{= ${i18n>maxHint} + ' ' + ${form>doffLength} }"
+											liveChange="onLengthChange"/>
+										<Text text="{form>uom}" class="stmUom sapUiTinyMarginBegin"/>
+									</HBox>
 									<Button icon="sap-icon://decline" type="Transparent"
 										tooltip="{i18n>remove}" press="onRemoveLine"/>
 								</cells>
 							</ColumnListItem>
 						</items>
 					</Table>
+					<Button id="btnPost"
+						text="{= ${i18n>post} + ' (' + ${form>/cart}.length + ')' }"
+						icon="sap-icon://cart" type="Accept" width="100%"
+						class="stmPostBtn sapUiSmallMarginTop"
+						press="onPostMove"
+						visible="{= ${form>/cart}.length > 0 }"
+						enabled="{= ${form>/cart}.length > 0 &amp;&amp; ${form>/toSloc}.length > 0 &amp;&amp; !${form>/busy} }"/>
 				</Panel>
 
 				<!-- Session history (side by side with the list) -->

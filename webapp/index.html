@@ -45,6 +45,73 @@
 		/* On phones the doff table collapses to popin (card-like) rows; give the
 		   popped-in block a touch more breathing room so each row reads as a card. */
 		.sapMListTblSubRow { padding-bottom: 0.25rem; }
+
+		/* ---- Card / mockup styling ------------------------------------------- */
+		#content { background: #f4f5f7; }
+
+		/* header: give the two-line title room so it isn't clipped. The Bar's
+		   left/right sections are a fixed 40px with overflow:hidden, which cuts
+		   off the stacked title+subtitle — let them grow and not clip. */
+		.sapMPageHeader { height: auto !important; }
+		.stmHeaderBar.sapMBar { height: auto !important; min-height: 3.5rem; padding: 4px 0; }
+		.stmHeaderBar .sapMBarLeft, .stmHeaderBar .sapMBarRight, .stmHeaderBar .sapMBarPH {
+			overflow: visible !important; height: auto !important; align-items: center;
+		}
+		.stmHeaderBar .sapMBarLeft .sapMFlexBox { height: auto !important; }
+		.stmHeaderTitle .sapMTitle, .stmHeaderTitle { font-size: 1rem; font-weight: 600; line-height: 1.15; margin: 0; }
+		.stmHeaderSub .sapMText, .stmHeaderSub { line-height: 1.15; }
+		.stmHeaderSub .sapMText, .stmHeaderSub { color: #8a8f98; font-size: 0.7rem; line-height: 1; }
+		.stmSap.sapMObjStatus { padding: 2px 9px; border-radius: 20px; font-weight: 500; }
+		.stmSap.sapMObjStatusSuccess { background: #e6f4ea; }
+		.stmSap.sapMObjStatusWarning { background: #fdf3e5; }
+		.stmSap.sapMObjStatusError   { background: #fdeaea; }
+
+		/* panels -> rounded white cards */
+		.stmCard.sapMPanel {
+			background: #ffffff;
+			border: 1px solid #e7e9ee;
+			border-radius: 12px;
+			box-shadow: none;
+			overflow: hidden;
+		}
+		.stmCard > .sapMPanelWrappingDivTb, .stmCard .sapMPanelContent { background: transparent; }
+		.stmCard .sapMPanelContent { border: none; padding: 0.5rem 0.75rem 0.75rem; }
+		.stmScanCard.sapMPanel { border-top: 3px solid var(--sapButton_Emphasized_Background, #0a6ed1); }
+
+		/* step header (icon + blue uppercase title) */
+		.stmStepBar.sapMTB { background: transparent; border: none; min-height: 2.5rem; }
+		.stmStepIcon { color: var(--sapButton_Emphasized_Background, #0a6ed1); font-size: 1rem; }
+		.stmStepTitle .sapMTitle, .stmStepTitle {
+			color: var(--sapButton_Emphasized_Background, #0a6ed1);
+			text-transform: uppercase; letter-spacing: 0.05em;
+			font-size: 0.72rem; font-weight: 600;
+		}
+
+		/* field labels + read-only chips */
+		.stmFieldLbl .sapMLabel, .stmFieldLbl { color: #8a8f98; font-size: 0.7rem; }
+		.stmChip .sapMInputBaseContentWrapper {
+			background: #f1f3f5; border-color: transparent; border-radius: 8px;
+		}
+		.stmChip .sapMInputBaseInner { font-weight: 600; color: #22242a; }
+
+		/* scan input (blue outline) */
+		.stmScanInput .sapMInputBaseContentWrapper {
+			border: 1.5px solid var(--sapButton_Emphasized_Background, #0a6ed1); border-radius: 8px;
+		}
+
+		/* doff meta line + green length box */
+		.stmMeta .sapMText, .stmMeta { color: #5a5e66; font-size: 0.8rem; }
+		.stmLen .sapMInputBaseContentWrapper {
+			border: 1.5px solid var(--sapButton_Accept_Background, #107e3e); border-radius: 8px;
+		}
+		.stmLen .sapMInputBaseInner {
+			color: var(--sapButton_Accept_Background, #107e3e); font-weight: 600; text-align: end;
+		}
+		.stmUom .sapMText, .stmUom { color: #8a8f98; font-size: 0.72rem; }
+
+		/* full-width green Post bar */
+		.stmPostBtn .sapMBtnInner { border-radius: 10px; height: 2.6rem; }
+		.stmPostBtn .sapMBtnContent { font-weight: 600; }
 	</style>
 
 	<!-- Local QR decoder (jsQR, MIT) for the iPad camera scan button. -->
