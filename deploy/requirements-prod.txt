@@ -1,0 +1,9 @@
+# Production Python deps for the Linux (SUSE) deployment.
+#   python3.11 -m venv /opt/zstm/.venv
+#   /opt/zstm/.venv/bin/pip install -r deploy/requirements-prod.txt
+#
+# pyrfc is NOT here — it is not on PyPI. Install it separately from the SAP
+# NW RFC SDK wheel (see deploy/DEPLOY_SUSE.md, "SAP NW RFC SDK + pyrfc").
+
+-r ../server/requirements.txt
+gunicorn>=21.2

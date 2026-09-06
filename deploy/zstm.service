@@ -1,0 +1,35 @@
+[Unit]
+Description=Kassim Stock Movement (ZSTM) web app
+Documentation=file:/opt/zstm/deploy/DEPLOY_SUSE.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zstm
+Group=zstm
+WorkingDirectory=/opt/zstm/server
+
+# The SAP NW RFC SDK must be discoverable by the dynamic linker BEFORE the
+# process starts (pyrfc dlopen's sapnwrfc.so). Set both here — .env is loaded
+# by the app at import time, which is too late for the linker.
+Environment=SAPNWRFC_HOME=/usr/local/sap/nwrfcsdk
+Environment=LD_LIBRARY_PATH=/usr/local/sap/nwrfcsdk/lib
+
+# HANA / SAP credentials and app config are read from /opt/zstm/server/.env
+# by the app itself (see _load_dotenv). Keep that file mode 600, owned by zstm.
+
+ExecStart=/opt/zstm/.venv/bin/gunicorn \
+    --workers 3 --threads 2 --timeout 120 \
+    --bind 0.0.0.0:8010 \
+    --certfile /opt/zstm/server/cert.pem \
+    --keyfile /opt/zstm/server/key.pem \
+    --access-logfile - --error-logfile - \
+    --chdir /opt/zstm/server app:app
+
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
