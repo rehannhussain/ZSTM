@@ -17,6 +17,9 @@ __pycache__/
 .venv/
 venv/
 
+# Runtime RFC trace log (regenerated on every run)
+server/dev_rfc.log
+
 # OS / editor
 .DS_Store
 Thumbs.db
