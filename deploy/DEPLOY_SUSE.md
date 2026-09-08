@@ -7,6 +7,14 @@ TLS cert signed by the existing **Kassim Local CA**.
 Throughout, replace `<VM_IP>` with the VM's LAN address (find it with
 `ip -4 addr show | grep inet`). Commands are run as `root` unless noted.
 
+> **Which path?** Sections 1–11 assume the VM is **registered** with SUSE (so
+> `zypper` can install `python311`, `gcc`, `git`, …). If the box is **not
+> registered** — `zypper` says *"No provider of …"* and `SUSEConnect
+> --status-text` shows *Not Registered* — jump to **[Appendix A](#appendix-a--no-registration-install-self-contained-python)**,
+> which is the exact path used for the first production box (`10.10.2.50`): a
+> self-contained Python 3.11 (no repos) plus SAP's prebuilt pyrfc wheel. Do the
+> TLS cert (§8) and read the gotchas at the end either way.
+
 ---
 
 ## 0. One-time facts to gather
@@ -226,20 +234,167 @@ Install to the home screen for the standalone app.
 
 ## Updating later
 
+If `git` is installed (registered box):
+
 ```bash
 sudo -u zstm git -C /opt/zstm pull
 sudo -u zstm /opt/zstm/.venv/bin/pip install -r /opt/zstm/deploy/requirements-prod.txt
 systemctl restart zstm
 ```
 
+No `git` (Appendix A box) — overlay the source from the GitHub archive, which
+preserves `.env`, certs, and `webapp/resources/`:
+
+```bash
+curl -sL -o /tmp/zstm.zip https://github.com/rehannhussain/ZSTM/archive/refs/heads/main.zip
+unzip -q -o /tmp/zstm.zip -d /tmp
+cp -a /tmp/ZSTM-main/webapp/. /opt/zstm/webapp/ && cp -a /tmp/ZSTM-main/server/. /opt/zstm/server/
+chown -R zstm:zstm /opt/zstm && systemctl restart zstm
+```
+
 ## Troubleshooting
 
+- **`zypper` says "No provider of …" / `SUSEConnect --status-text` = Not
+  Registered** → the box has no repos. Register + enable modules (§1 note), or
+  use the no-repo path in [Appendix A](#appendix-a--no-registration-install-self-contained-python).
+- **Package names on SLES** → the git binary is **`git-core`** (not `git`);
+  `python311`/`gcc`/`gcc-c++` live in the python3 / development-tools modules.
+- **`chown: invalid group 'zstm'`** → `useradd` here doesn't create a matching
+  group. Run `groupadd -f zstm && usermod -g zstm zstm` before the `chown` (the
+  systemd unit's `Group=zstm` needs it too).
+- **No `nano`** → use `vi`: `i` to edit, `Esc` then `:wq!` to save. `:wq!` (with
+  the `!`) is needed because a mode-600 file opens read-only for root.
+- **Edit `.env` with `vi`, not `sed`** when a password has `$ \ " '` etc. — the
+  shell mangles those. `sed` is fine only for simple values like `SAP_RFC_MOCK`.
+- **OpenUI5 "File is not a zip file"** → the `ui5.zip` download was truncated.
+  Re-fetch with `curl -fL` (the `-f` fails loudly instead of saving an error
+  page) and confirm with `python3 -c "import zipfile; zipfile.ZipFile('/tmp/ui5.zip')"`.
+- **`/api/health` shows `"mock":true`** → `SAP_RFC_MOCK` is still `true` in
+  `.env`. `sed -i 's/^SAP_RFC_MOCK=.*/SAP_RFC_MOCK=false/' .env` and restart.
+- **Scan fails `(10, 'authentication failed')` but a direct `hdbcli` connect
+  works** → a gunicorn worker was started before `.env` was saved. `systemctl
+  restart zstm`. **Always restart after any `.env` change** — the app reads
+  `.env` once at import.
 - **502 / won't start, `ImportError ... sapnwrfc`** → SDK not on the linker path.
   Check `ldconfig -p | grep sapnwrfc` and that the unit has `LD_LIBRARY_PATH`.
-- **Posting fails, HANA/SAP unreachable** → firewall between the VM and SAP, or
-  wrong `.env`. Test with `nc -vz`.
-- **Blank UI** → `webapp/resources/` missing (step 4).
+- **Posting fails, HANA/SAP unreachable** → firewall between the VM and SAP. Test
+  without extra tools: `(echo > /dev/tcp/<HOST>/<PORT>) 2>/dev/null && echo open`.
+- **Blank UI** → `webapp/resources/` missing (step 4 / A‑2).
 - **Cert warning on device** → that device doesn't have `rootCA.pem` installed,
   or the cert's SAN doesn't include the IP/host you typed in the URL.
 - **AppArmor** (SLES default, not SELinux) rarely blocks this; if gunicorn can't
   read the cert, check file ownership/mode from step 8.
+
+---
+
+## Appendix A — no-registration install (self-contained Python)
+
+Use this when the VM **isn't registered** with SUSE, so `zypper` can't install
+anything. It needs no repos and no compiler: a portable Python 3.11 fetched by
+[`uv`](https://astral.sh/uv), plus SAP's **prebuilt** pyrfc wheel. This is the
+exact path used for the first box (`10.10.2.50`). Only `unzip` and `curl` from
+the base image are required. Run as `root` unless noted.
+
+Prereqs already on the VM: `/tmp/nwrfc750P_19-70002752.zip` (the SDK, from your
+S-user), and `/tmp/cert.pem` + `/tmp/key.pem` (minted with
+`deploy/make-vm-cert.sh <VM_IP>` on the box that holds the CA — §8).
+
+**A‑1. Service user + group** (`useradd` doesn't make the group):
+
+```bash
+useradd --system --create-home --home-dir /opt/zstm --shell /usr/sbin/nologin zstm
+groupadd -f zstm && usermod -g zstm zstm
+```
+
+**A‑2. Code (via GitHub zip — no `git`), SDK, OpenUI5, certs:**
+
+```bash
+# app code — the archive excludes the gitignored webapp/resources/
+curl -sL -o /tmp/zstm.zip https://github.com/rehannhussain/ZSTM/archive/refs/heads/main.zip
+unzip -q -o /tmp/zstm.zip -d /tmp
+rm -rf /opt/zstm && mv /tmp/ZSTM-main /opt/zstm
+
+# SAP NW RFC SDK
+mkdir -p /usr/local/sap
+unzip -o /tmp/nwrfc750P_19-70002752.zip -d /usr/local/sap
+echo /usr/local/sap/nwrfcsdk/lib > /etc/ld.so.conf.d/nwrfcsdk.conf
+ldconfig && ldconfig -p | grep sapnwrfc
+
+# OpenUI5 runtime into webapp/resources (system python3 is fine just to unzip)
+curl -fL -o /tmp/ui5.zip https://github.com/SAP/openui5/releases/download/1.120.30/openui5-runtime-1.120.30.zip
+python3 -c "import zipfile; z=zipfile.ZipFile('/tmp/ui5.zip'); z.extractall('/opt/zstm/webapp',[n for n in z.namelist() if n.startswith('resources/') and not n.endswith('/')])"
+ls /opt/zstm/webapp/resources/sap-ui-core.js
+
+# certs + config skeleton, then ownership
+cp /tmp/cert.pem /opt/zstm/server/cert.pem
+cp /tmp/key.pem  /opt/zstm/server/key.pem
+cp /opt/zstm/server/.env.example /opt/zstm/server/.env
+chown -R zstm:zstm /opt/zstm
+chmod 644 /opt/zstm/server/cert.pem && chmod 600 /opt/zstm/server/key.pem /opt/zstm/server/.env
+```
+
+**A‑3. Self-contained Python 3.11 + deps + prebuilt pyrfc** (as the `zstm` user
+so nothing lands in `/root`):
+
+```bash
+# official prebuilt pyrfc wheel — keep the real filename (pip needs the tags)
+curl -fL -o /tmp/pyrfc-3.3.1-cp311-cp311-linux_x86_64.whl \
+  https://github.com/SAP-archive/PyRFC/releases/download/v3.3.1/pyrfc-3.3.1-cp311-cp311-linux_x86_64.whl
+
+su -s /bin/bash zstm -c '
+  set -e
+  export HOME=/opt/zstm
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  export PATH=$HOME/.local/bin:$PATH
+  uv python install 3.11
+  uv venv --python 3.11 /opt/zstm/.venv
+  uv pip install --python /opt/zstm/.venv/bin/python -r /opt/zstm/deploy/requirements-prod.txt
+  uv pip install --python /opt/zstm/.venv/bin/python /tmp/pyrfc-3.3.1-cp311-cp311-linux_x86_64.whl
+'
+
+# verify the whole stack loads (must print a version)
+SAPNWRFC_HOME=/usr/local/sap/nwrfcsdk LD_LIBRARY_PATH=/usr/local/sap/nwrfcsdk/lib \
+  /opt/zstm/.venv/bin/python -c "import pyrfc, flask, hdbcli; print('pyrfc', pyrfc.__version__)"
+```
+
+**A‑4. Fill `.env`, then start the service.** Edit with `vi` (see gotchas), set
+the real `SAP_*` / `HANA_*` values and **`SAP_RFC_MOCK=false`**:
+
+```bash
+vi /opt/zstm/server/.env
+chown zstm:zstm /opt/zstm/server/.env && chmod 600 /opt/zstm/server/.env
+# sanity-check HANA creds directly (prints the real error if wrong):
+/opt/zstm/.venv/bin/python - <<'PY'
+import os
+for l in open('/opt/zstm/server/.env'):
+    l=l.strip()
+    if l and not l.startswith('#') and '=' in l:
+        k,v=l.split('=',1); os.environ[k.strip()]=v.strip().strip('"').strip("'")
+from hdbcli import dbapi
+try:
+    c=dbapi.connect(address=os.environ['HANA_HOST'], port=int(os.environ['HANA_PORT']),
+        user=os.environ['HANA_USER'], password=os.environ['HANA_PASSWORD'],
+        encrypt=os.environ.get('HANA_ENCRYPT','true').lower()=='true', sslValidateCertificate=False)
+    c.cursor().execute('SELECT 1 FROM DUMMY'); print('HANA OK'); c.close()
+except Exception as e: print('HANA FAILED:', e)
+PY
+
+cp /opt/zstm/deploy/zstm.service /etc/systemd/system/zstm.service
+systemctl daemon-reload
+systemctl enable --now zstm
+firewall-cmd --permanent --add-port=8010/tcp 2>/dev/null && firewall-cmd --reload || echo "no firewalld"
+```
+
+**A‑5. Verify:**
+
+```bash
+curl --cacert /opt/zstm/server/cert.pem https://127.0.0.1:8010/api/health          # want "mock":false
+curl --cacert /opt/zstm/server/cert.pem -X POST https://127.0.0.1:8010/api/stock/resolve \
+  -H 'Content-Type: application/json' -d '{"qr":"<a-real-doff-qr>"}'                # want a lines[] payload
+```
+
+Then open `https://<VM_IP>:8010` on a device with `rootCA.pem` installed.
+
+> Register the OS later when a code is available — the app keeps running, but a
+> registered SLES is what gets security patches and SUSE support. After
+> registering you can `zypper install git-core` and switch to `git pull` updates.
