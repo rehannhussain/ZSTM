@@ -6,11 +6,9 @@ sap.ui.define([
 	"sap/m/MessageBox",
 	"sap/m/Dialog",
 	"sap/m/Button",
-	"sap/m/Input",
-	"sap/m/Label",
-	"sap/m/VBox",
+	"sap/ui/core/Fragment",
 	"sap/ui/core/HTML"
-], function (Controller, JSONModel, coreLibrary, MessageToast, MessageBox, Dialog, Button, Input, Label, VBox, HTML) {
+], function (Controller, JSONModel, coreLibrary, MessageToast, MessageBox, Dialog, Button, Fragment, HTML) {
 	"use strict";
 
 	var ValueState = coreLibrary.ValueState;
@@ -89,45 +87,46 @@ sap.ui.define([
 		},
 
 		_openLogin: function () {
-			if (!this._oLoginDialog) {
-				this._loginUser = new Input({ placeholder: this._t("loginUserPh") });
-				this._loginPass = new Input({
-					type: "Password", placeholder: this._t("loginPassPh"),
-					submit: this.onLoginSubmit.bind(this)
+			var oView = this.getView();
+			if (!this._pLogin) {
+				this._pLogin = Fragment.load({
+					id: oView.getId(),
+					name: "stock.transfer.view.Login",
+					controller: this
+				}).then(function (oDialog) {
+					oView.addDependent(oDialog);
+					return oDialog;
 				});
-				var oBox = new VBox({
-					items: [
-						new Label({ text: this._t("loginUser") }), this._loginUser,
-						new Label({ text: this._t("loginPass") }).addStyleClass("sapUiSmallMarginTop"),
-						this._loginPass
-					]
-				}).addStyleClass("sapUiContentPadding");
-				this._oLoginDialog = new Dialog({
-					title: this._t("loginTitle"),
-					stretchOnPhone: true,
-					contentWidth: "22rem",
-					escapeHandler: function (o) { o.reject(); },   // block ESC/dismiss
-					content: [oBox],
-					beginButton: new Button({
-						text: this._t("signIn"), type: "Emphasized",
-						press: this.onLoginSubmit.bind(this)
-					})
-				});
-				this.getView().addDependent(this._oLoginDialog);
 			}
-			this._loginPass.setValue("");
-			this._loginPass.setValueState(ValueState.None);
-			if (!this._oLoginDialog.isOpen()) { this._oLoginDialog.open(); }
+			this._pLogin.then(function (oDialog) {
+				var oPass = this.byId("loginPass");
+				if (oPass) { oPass.setValue(""); oPass.setValueState(ValueState.None); }
+				if (!oDialog.isOpen()) { oDialog.open(); }
+			}.bind(this));
+		},
+
+		/** Block ESC / outside-tap: the login can only be dismissed by signing in. */
+		onLoginEscape: function (oPromise) {
+			oPromise.reject();
+		},
+
+		/** Show/hide the password field. */
+		onTogglePass: function () {
+			var oPass = this.byId("loginPass"), oEye = this.byId("loginEye");
+			var bHidden = oPass.getType() === "Password";
+			oPass.setType(bHidden ? "Text" : "Password");
+			oEye.setSrc(bHidden ? "sap-icon://hide" : "sap-icon://show");
 		},
 
 		onLoginSubmit: function () {
-			var sUser = (this._loginUser.getValue() || "").trim();
-			var sPass = this._loginPass.getValue() || "";
+			var oUser = this.byId("loginUser"), oPass = this.byId("loginPass");
+			var sUser = (oUser.getValue() || "").trim();
+			var sPass = oPass.getValue() || "";
 			if (!sUser || !sPass) {
 				MessageToast.show(this._t("loginNeed"));
 				return;
 			}
-			var oBtn = this._oLoginDialog.getBeginButton();
+			var oBtn = this.byId("loginBtn");
 			oBtn.setBusy(true);
 			fetch("api/auth/login", {
 				method: "POST",
@@ -140,7 +139,7 @@ sap.ui.define([
 				.then(function (r) {
 					oBtn.setBusy(false);
 					if (!r.ok) {
-						this._loginPass.setValueState(ValueState.Error);
+						oPass.setValueState(ValueState.Error);
 						MessageBox.error(r.body && r.body.error ? r.body.error : this._t("loginFailed"),
 							{ title: this._t("loginTitle") });
 						return;
@@ -148,7 +147,7 @@ sap.ui.define([
 					var oModel = this.getView().getModel("form");
 					oModel.setProperty("/operator", r.body.user || "");
 					oModel.setProperty("/fullName", r.body.fullName || "");
-					this._oLoginDialog.close();
+					this.byId("loginDialog").close();
 					MessageToast.show(this._t("welcome", [r.body.fullName || r.body.user]));
 					var oScan = this.byId("inpScan");
 					if (oScan) { oScan.focus(); }

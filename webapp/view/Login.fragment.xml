@@ -1,0 +1,58 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<Dialog id="loginDialog" showHeader="false" stretchOnPhone="true"
+		contentWidth="23rem" class="stmLoginDlg" escapeHandler=".onLoginEscape">
+		<VBox class="stmLoginBox">
+
+			<!-- branded header band -->
+			<VBox class="stmLoginHead" alignItems="Center" justifyContent="Center">
+				<VBox class="stmLoginLogo" alignItems="Center" justifyContent="Center">
+					<Text text="K" class="stmLoginK"/>
+				</VBox>
+				<Title text="{i18n>headerTitle}" class="stmLoginTitle" wrapping="false"/>
+				<Text text="{i18n>headerSub}" class="stmLoginSub"/>
+			</VBox>
+
+			<!-- sign-in form -->
+			<VBox class="stmLoginForm">
+				<Title text="{i18n>loginTitle}" class="stmLoginHeading"/>
+				<Text text="{i18n>loginPrompt}" class="stmLoginPrompt"/>
+
+				<Label text="{i18n>loginUser}" class="stmLoginLbl"/>
+				<HBox class="stmField" alignItems="Center">
+					<core:Icon src="sap-icon://person-placeholder" class="stmFieldIcon"/>
+					<Input id="loginUser" class="stmFieldInput" placeholder="{i18n>loginUserPh}"
+						submit=".onLoginSubmit">
+						<layoutData><FlexItemData growFactor="1"/></layoutData>
+					</Input>
+				</HBox>
+
+				<Label text="{i18n>loginPass}" class="stmLoginLbl sapUiSmallMarginTop"/>
+				<HBox class="stmField" alignItems="Center">
+					<core:Icon src="sap-icon://locked" class="stmFieldIcon"/>
+					<Input id="loginPass" type="Password" class="stmFieldInput"
+						placeholder="{i18n>loginPassPh}" submit=".onLoginSubmit">
+						<layoutData><FlexItemData growFactor="1"/></layoutData>
+					</Input>
+					<core:Icon id="loginEye" src="sap-icon://show" class="stmFieldEye"
+						press=".onTogglePass"/>
+				</HBox>
+
+				<HBox justifyContent="SpaceBetween" class="stmLoginMeta sapUiSmallMarginTop">
+					<Text text="{i18n>loginClient}"/>
+					<Text text="{i18n>loginPlant}"/>
+				</HBox>
+
+				<Button id="loginBtn" text="{i18n>signIn}" type="Emphasized"
+					icon="sap-icon://log" width="100%" press=".onLoginSubmit"
+					class="stmLoginBtn sapUiSmallMarginTop"/>
+
+				<HBox class="stmLoginNote sapUiSmallMarginTop">
+					<core:Icon src="sap-icon://shield" class="stmLoginNoteIcon"/>
+					<Text text="{i18n>loginNote}"/>
+				</HBox>
+			</VBox>
+		</VBox>
+	</Dialog>
+</core:FragmentDefinition>

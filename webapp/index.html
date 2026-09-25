@@ -164,6 +164,47 @@
 		/* header user chip + transit status badge */
 		.stmUserChip .sapMBtnContent { font-weight: 600; font-size: 0.8rem; }
 		.stmTransitBadge .sapMObjStatusText { font-size: 0.72rem; }
+
+		/* ---- Branded login screen (matches the plan). !important beats the
+		   UI5 theme CSS, which loads after this block with equal specificity. */
+		.stmLoginDlg { border-radius: 16px; overflow: hidden; }
+		.stmLoginDlg .sapMDialogScrollCont { padding: 0 !important; }
+		.stmLoginBox { width: 100%; }
+		.stmLoginHead {
+			width: 100%; box-sizing: border-box;
+			background: #1f3d6b !important; padding: 18px 16px 20px;
+		}
+		.stmLoginLogo {
+			width: 52px !important; height: 52px; flex: 0 0 auto;
+			background: #fff !important; border-radius: 14px; margin-bottom: 9px; position: relative;
+		}
+		.stmLoginK .sapMText, .stmLoginK { font-family: "Arial Black","Segoe UI",sans-serif; font-weight: 800; font-size: 30px; color: #1f3d6b; }
+		.stmLoginLogo:after { content: ""; position: absolute; bottom: 13px; width: 22px; height: 3px; background: #d8a441; border-radius: 2px; }
+		.stmLoginTitle .sapMTitle, .stmLoginTitle { color: #fff !important; font-weight: 600; font-size: 1.05rem; }
+		.stmLoginSub .sapMText, .stmLoginSub { color: #aebdd4 !important; font-size: 0.72rem; }
+		.stmLoginForm { width: 100%; box-sizing: border-box; padding: 15px 18px 18px; }
+		.stmLoginHeading .sapMTitle, .stmLoginHeading { font-weight: 600; font-size: 0.95rem; }
+		.stmLoginPrompt .sapMText, .stmLoginPrompt { color: #8a8f98; font-size: 0.75rem; }
+		.stmLoginForm .stmLoginPrompt { margin-bottom: 12px; }
+		.stmLoginLbl .sapMLabel, .stmLoginLbl { color: #8a8f98; font-size: 0.72rem; }
+		.stmField {
+			border: 1px solid #d7dae0; border-radius: 8px; padding: 2px 10px; margin-top: 2px;
+		}
+		.stmFieldIcon { color: #8a8f98; font-size: 1rem; margin-right: 8px; }
+		.stmFieldInput, .stmFieldInput .sapMInputBaseContentWrapper {
+			border: none !important; background: transparent !important; box-shadow: none !important;
+		}
+		.stmFieldEye { color: #b0b4bb; font-size: 1rem; cursor: pointer; margin-left: 6px; }
+		.stmLoginMeta .sapMText { color: #8a8f98; font-size: 0.72rem; }
+		.stmLoginBtn .sapMBtnInner {
+			background: #1f3d6b !important; border-color: #1f3d6b !important;
+			border-radius: 10px !important; height: 2.7rem;
+		}
+		.stmLoginBtn .sapMBtnInner:hover { background: #18325a !important; border-color: #18325a !important; }
+		.stmLoginBtn .sapMBtnContent, .stmLoginBtn .sapMBtnIcon { color: #fff !important; font-weight: 600; }
+		.stmLoginNote { align-items: flex-start; }
+		.stmLoginNoteIcon { color: #0a7a3a; font-size: 0.85rem; margin-right: 6px; margin-top: 2px; }
+		.stmLoginNote .sapMText { color: #9aa0a8; font-size: 0.63rem; line-height: 1.45; }
 	</style>
 
 	<!-- Local QR decoder (jsQR, MIT) for the iPad camera scan button. -->

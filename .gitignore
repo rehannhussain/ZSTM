@@ -31,3 +31,6 @@ Thumbs.db
 
 # Runtime RFC trace log at the repo root, too
 dev_rfc.log
+
+# SAP NW RFC SDK trace files
+*.trc
