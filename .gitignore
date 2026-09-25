@@ -28,3 +28,6 @@ server/dev_rfc.log
 Thumbs.db
 .vscode/
 .idea/
+
+# Runtime RFC trace log at the repo root, too
+dev_rfc.log
