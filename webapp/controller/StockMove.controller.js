@@ -6,8 +6,11 @@ sap.ui.define([
 	"sap/m/MessageBox",
 	"sap/m/Dialog",
 	"sap/m/Button",
+	"sap/m/Input",
+	"sap/m/Label",
+	"sap/m/VBox",
 	"sap/ui/core/HTML"
-], function (Controller, JSONModel, coreLibrary, MessageToast, MessageBox, Dialog, Button, HTML) {
+], function (Controller, JSONModel, coreLibrary, MessageToast, MessageBox, Dialog, Button, Input, Label, VBox, HTML) {
 	"use strict";
 
 	var ValueState = coreLibrary.ValueState;
@@ -18,6 +21,7 @@ sap.ui.define([
 			this.getView().setModel(this._newModel(), "form");
 			this._checkHealth();
 			this._healthTimer = setInterval(this._checkHealth.bind(this), 20000);
+			this._checkAuth();       // gate the app behind a SAP login
 		},
 
 		onExit: function () {
@@ -32,7 +36,8 @@ sap.ui.define([
 				sapOnline: true,
 				mock: false,
 				toSloc: "3055",          // fixed destination storage location
-				operator: "",
+				operator: "",            // set from the SAP login (no manual entry)
+				fullName: "",
 				scanText: "",
 				busy: false,
 				cart: [],
@@ -64,6 +69,114 @@ sap.ui.define([
 
 		onRetryHealth: function () {
 			this._checkHealth();
+		},
+
+		// ----- SAP login (8-hour session) -----------------------------------
+
+		/** On load, ask the server who is signed in; open the login if nobody is. */
+		_checkAuth: function () {
+			fetch("api/auth/me")
+				.then(function (res) {
+					if (!res.ok) { throw new Error("noauth"); }
+					return res.json();
+				})
+				.then(function (b) {
+					var oModel = this.getView().getModel("form");
+					oModel.setProperty("/operator", b.user || "");
+					oModel.setProperty("/fullName", b.fullName || "");
+				}.bind(this))
+				.catch(function () { this._openLogin(); }.bind(this));
+		},
+
+		_openLogin: function () {
+			if (!this._oLoginDialog) {
+				this._loginUser = new Input({ placeholder: this._t("loginUserPh") });
+				this._loginPass = new Input({
+					type: "Password", placeholder: this._t("loginPassPh"),
+					submit: this.onLoginSubmit.bind(this)
+				});
+				var oBox = new VBox({
+					items: [
+						new Label({ text: this._t("loginUser") }), this._loginUser,
+						new Label({ text: this._t("loginPass") }).addStyleClass("sapUiSmallMarginTop"),
+						this._loginPass
+					]
+				}).addStyleClass("sapUiContentPadding");
+				this._oLoginDialog = new Dialog({
+					title: this._t("loginTitle"),
+					stretchOnPhone: true,
+					contentWidth: "22rem",
+					escapeHandler: function (o) { o.reject(); },   // block ESC/dismiss
+					content: [oBox],
+					beginButton: new Button({
+						text: this._t("signIn"), type: "Emphasized",
+						press: this.onLoginSubmit.bind(this)
+					})
+				});
+				this.getView().addDependent(this._oLoginDialog);
+			}
+			this._loginPass.setValue("");
+			this._loginPass.setValueState(ValueState.None);
+			if (!this._oLoginDialog.isOpen()) { this._oLoginDialog.open(); }
+		},
+
+		onLoginSubmit: function () {
+			var sUser = (this._loginUser.getValue() || "").trim();
+			var sPass = this._loginPass.getValue() || "";
+			if (!sUser || !sPass) {
+				MessageToast.show(this._t("loginNeed"));
+				return;
+			}
+			var oBtn = this._oLoginDialog.getBeginButton();
+			oBtn.setBusy(true);
+			fetch("api/auth/login", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ user: sUser, password: sPass })
+			})
+				.then(function (res) {
+					return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+				})
+				.then(function (r) {
+					oBtn.setBusy(false);
+					if (!r.ok) {
+						this._loginPass.setValueState(ValueState.Error);
+						MessageBox.error(r.body && r.body.error ? r.body.error : this._t("loginFailed"),
+							{ title: this._t("loginTitle") });
+						return;
+					}
+					var oModel = this.getView().getModel("form");
+					oModel.setProperty("/operator", r.body.user || "");
+					oModel.setProperty("/fullName", r.body.fullName || "");
+					this._oLoginDialog.close();
+					MessageToast.show(this._t("welcome", [r.body.fullName || r.body.user]));
+					var oScan = this.byId("inpScan");
+					if (oScan) { oScan.focus(); }
+				}.bind(this))
+				.catch(function () {
+					oBtn.setBusy(false);
+					MessageBox.error(this._t("errNetwork"));
+				}.bind(this));
+		},
+
+		onLogout: function () {
+			fetch("api/auth/logout", { method: "POST" })
+				.then(function () {
+					var oModel = this.getView().getModel("form");
+					oModel.setProperty("/operator", "");
+					oModel.setProperty("/fullName", "");
+					oModel.setProperty("/cart", []);
+					oModel.setProperty("/history", []);
+					this._openLogin();
+				}.bind(this))
+				.catch(function () { this._openLogin(); }.bind(this));
+		},
+
+		/** Session gone (server returned 401): drop back to the login. */
+		_sessionExpired: function () {
+			this.getView().getModel("form").setProperty("/busy", false);
+			MessageToast.show(this._t("sessionExpired"));
+			this._openLogin();
 		},
 
 		onDestChange: function (oEvent) {
@@ -111,18 +224,20 @@ sap.ui.define([
 				body: JSON.stringify({ qr: sQr })
 			})
 				.then(function (res) {
+					var iStatus = res.status;
 					return res.json().then(function (body) {
-						return { ok: res.ok, body: body };
+						return { ok: res.ok, status: iStatus, body: body };
 					});
 				})
 				.then(function (r) {
 					oModel.setProperty("/busy", false);
+					if (r.status === 401) { this._sessionExpired(); return; }
 					if (!r.ok) {
 						MessageBox.warning(r.body && r.body.error ? r.body.error : this._t("errResolveTitle"),
 							{ title: this._t("errResolveTitle") });
 						return;
 					}
-					this._addLines(r.body.lines || []);
+					this._addLines(r.body.lines || [], r.body.parsed || {});
 					var aDef = r.body.deficits || [];
 					if (aDef.length) {
 						MessageBox.warning(aDef.join("\n"), { title: this._t("errDeficitTitle") });
@@ -137,10 +252,12 @@ sap.ui.define([
 				}.bind(this));
 		},
 
-		/** Append resolved doff line(s) to the cart, skipping batches already in it. */
-		_addLines: function (aLines) {
+		/** Append resolved doff line(s) to the cart, skipping batches already in it.
+		 *  oParsed carries the beam context (lot/loom/beam/seq/raw) for the save. */
+		_addLines: function (aLines, oParsed) {
 			var oModel = this.getView().getModel("form");
 			var aCart = oModel.getProperty("/cart").slice();
+			var p = oParsed || {};
 			var iAdded = 0, sDup = "";
 
 			aLines.forEach(function (ln) {
@@ -149,7 +266,9 @@ sap.ui.define([
 				aCart.push({
 					plant: ln.plant, sloc: ln.sloc, material: ln.material, batch: ln.batch,
 					uom: ln.uom, doffLength: ln.doffLength, doffBatchNo: ln.doffBatchNo,
-					article: ln.article, qty: ln.doffLength   // default = full doff length, editable
+					article: ln.article, qty: ln.doffLength,   // default = full doff length, editable
+					lot: p.lot || "", loom: p.loom || "", beam: p.beam || "",
+					seq: p.seq || "", qrRaw: p.raw || ""
 				});
 				iAdded++;
 				MessageToast.show(this._t("addedLine", [ln.batch, ln.doffLength, ln.uom]));
@@ -284,6 +403,97 @@ sap.ui.define([
 			if (oScan) { oScan.focus(); }
 		},
 
+		// ----- Save = record the list as "Doff in Transit" (no 311) ----------
+
+		onSaveTransit: function () {
+			var oModel = this.getView().getModel("form");
+			var d = oModel.getData();
+
+			if (d.busy) { return; }
+			var sTo = (d.toSloc || "").trim();
+			if (!sTo) {
+				this.byId("inpToSloc").setValueState(ValueState.Error);
+				MessageToast.show(this._t("errNoDest"));
+				return;
+			}
+			var aCart = d.cart || [];
+			if (!aCart.length) {
+				MessageToast.show(this._t("errNoLines"));
+				return;
+			}
+			var bBad = aCart.some(function (c) {
+				var f = Number(c.qty), m = Number(c.doffLength);
+				return !(c.qty !== "" && isFinite(f) && f > 0 && (!isFinite(m) || f <= m));
+			});
+			if (bBad) {
+				MessageBox.error(this._t("errLenInvalid"), { title: this._t("errLenTitle") });
+				return;
+			}
+			this._doSaveTransit(aCart, sTo);
+		},
+
+		_doSaveTransit: function (aCart, sTo) {
+			var oModel = this.getView().getModel("form");
+			oModel.setProperty("/busy", true);
+
+			var aItems = aCart.map(function (c) {
+				return {
+					plant: c.plant, sloc: c.sloc, material: c.material, batch: c.batch,
+					uom: c.uom, qty: String(c.qty), doffLength: c.doffLength,
+					doffBatchNo: c.doffBatchNo, article: c.article,
+					qrRaw: c.qrRaw, lot: c.lot, loom: c.loom, beam: c.beam, seq: c.seq
+				};
+			});
+
+			fetch("api/stock/transit", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ items: aItems, toSloc: sTo })
+			})
+				.then(function (res) {
+					var iStatus = res.status;
+					return res.json().then(function (body) { return { ok: res.ok, status: iStatus, body: body }; });
+				})
+				.then(function (r) {
+					oModel.setProperty("/busy", false);
+					if (r.status === 401) { this._sessionExpired(); return; }
+					if (!r.ok) {
+						MessageBox.error(r.body && r.body.error ? r.body.error : this._t("errSaveFailed"),
+							{ title: this._t("errSaveTitle") });
+						return;
+					}
+					this._onSaved(r.body);
+				}.bind(this))
+				.catch(function () {
+					oModel.setProperty("/busy", false);
+					MessageBox.error(this._t("errNetwork"), { title: this._t("errSaveTitle") });
+				}.bind(this));
+		},
+
+		/** Record a successful save: per-line transit history + clear the list. */
+		_onSaved: function (body) {
+			var oModel = this.getView().getModel("form");
+			var aSaved = body.saved || [];
+			var sSummary = this._t("savedSummary", [aSaved.length, body.toSloc]);
+
+			var aHist = oModel.getProperty("/history").slice();
+			var sNow = this._nowText();
+			aSaved.forEach(function (s) {
+				aHist.unshift({
+					time: sNow, matdoc: s.docid, material: s.material, batch: s.batch,
+					qty: s.qty, uom: s.uom, sloc: s.sloc, toSloc: body.toSloc,
+					status: s.status || "Doff in Transit"
+				});
+			});
+			oModel.setProperty("/history", aHist);
+
+			oModel.setProperty("/cart", []);
+			MessageToast.show((body.mock ? this._t("mockPrefix") : "") + sSummary);
+
+			var oScan = this.byId("inpScan");
+			if (oScan) { oScan.focus(); }
+		},
+
 		// ----- Camera QR scan (iPad Safari) ---------------------------------
 
 		onScanQr: function () {
@@ -396,6 +606,7 @@ sap.ui.define([
 		onReset: function () {
 			this._stopCamera();
 			this.getView().setModel(this._newModel(), "form");
+			this._checkAuth();       // keep the signed-in operator after a reset
 			var oScan = this.byId("inpScan");
 			if (oScan) {
 				oScan.setValueState(ValueState.None);

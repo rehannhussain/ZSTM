@@ -29,10 +29,11 @@ document number so the UI can be exercised end to end.
 import os
 import re
 import mimetypes
-from datetime import date, datetime
+from functools import wraps
+from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session
 
 # Serve the PWA manifest with the correct content type (some Python installs
 # don't know .webmanifest, and browsers ignore a manifest served as octet-stream).
@@ -127,6 +128,23 @@ HANA = {
 }
 HANA_TIMEOUT_MS = int(os.environ.get("HANA_TIMEOUT_MS", "5000"))
 DEFAULT_UOM = os.environ.get("DEFAULT_UOM", "").strip().upper()
+
+# --- Session / operator login ---------------------------------------------
+# Operators sign in with their own SAP GUI user + password (validated by an RFC
+# logon); the session then carries the operator id for 8 hours. SESSION_SECRET
+# must be a stable value in .env for logins to survive a restart.
+SESSION_SECRET = os.environ.get("SESSION_SECRET", "")
+SESSION_HOURS = int(os.environ.get("SESSION_HOURS", "8"))
+SESSION_COOKIE_SECURE = _envbool("SESSION_COOKIE_SECURE", False)
+# Base RFC coordinates for an operator logon = the system params WITHOUT the
+# service user/passwd; the operator's own credentials are substituted per login.
+RFC_BASE = {k: v for k, v in {
+    "ashost": _rfc["ashost"], "sysnr": _rfc["sysnr"],
+    "client": _rfc["client"], "lang": _rfc["lang"], "dest": _rfc["dest"],
+}.items() if v}
+
+# Custom "Doff in Transit" log table (created by db/ZSTM_TRANSIT_D.sql).
+TRANSIT_TABLE = os.environ.get("ZSTM_TRANSIT_TABLE", "SAPHANADB.ZSTM_TRANSIT_D")
 
 # --- Doff QR resolve (ZWV_DOF_D / ZWV_DOF_DD2) -----------------------------
 # The scanned QR is a beam/doff label like '261042-528-1446-01 TRIAL':
@@ -514,6 +532,116 @@ def post_moves(items, to_sloc, user):
 # ---------------------------------------------------------------------------
 
 app = Flask(__name__, static_folder=None)
+app.secret_key = SESSION_SECRET or os.urandom(32)
+if not SESSION_SECRET:
+    print("WARNING: SESSION_SECRET is not set - operator sessions will reset on "
+          "restart. Set it in server/.env for stable 8-hour logins.")
+app.config.update(
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=SESSION_HOURS),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=SESSION_COOKIE_SECURE,
+)
+
+
+# ---------------------------------------------------------------------------
+# Operator login (validated against SAP by an RFC logon) + session guard
+# ---------------------------------------------------------------------------
+
+def _sap_full_name(conn, user):
+    """Best-effort full name for a signed-in user; '' if not readable."""
+    try:
+        res = conn.call("BAPI_USER_GET_DETAIL", USERNAME=user.upper())
+        addr = res.get("ADDRESS") or {}
+        full = (addr.get("FULLNAME") or "").strip()
+        if full:
+            return full
+        fn = (addr.get("FIRSTNAME") or "").strip()
+        ln = (addr.get("LASTNAME") or "").strip()
+        return (fn + " " + ln).strip()
+    except Exception:
+        return ""
+
+
+def _sap_login(user, password):
+    """Validate an operator's SAP GUI credentials with an RFC logon.
+
+    Returns (USER_UPPER, full_name). Raises ValueError with an operator-facing
+    message on bad/expired credentials, RuntimeError if RFC isn't available.
+    The password is used only to open (and immediately close) the connection.
+    """
+    if not RFC_BASE:
+        raise RuntimeError("SAP RFC is not configured (SAP_ASHOST/SYSNR/CLIENT or SAP_DEST).")
+    try:
+        from pyrfc import Connection
+    except ImportError as exc:
+        raise RuntimeError("pyrfc is not installed (needs the SAP NW RFC SDK).") from exc
+
+    try:
+        conn = Connection(**dict(RFC_BASE, user=user, passwd=password))
+    except Exception as exc:
+        low = str(exc).lower()
+        if "password" in low and any(w in low for w in ("expired", "initial", "change")):
+            raise ValueError("Your SAP password has expired - change it in SAP GUI, then sign in.")
+        if any(w in low for w in ("incorrect", "name or password", "logon", "not authorized", "locked")):
+            raise ValueError("Wrong SAP user or password.")
+        raise
+    try:
+        full = _sap_full_name(conn, user)
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+    return user.strip().upper(), full
+
+
+def require_login(fn):
+    """Guard an endpoint: 401 unless a valid operator session is present."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not session.get("user"):
+            return jsonify({"error": "Not signed in.", "auth": False}), 401
+        return fn(*args, **kwargs)
+    return wrapper
+
+
+@app.post("/api/auth/login")
+def api_auth_login():
+    data = request.get_json(silent=True) or {}
+    user = str(data.get("user", "")).strip()
+    pw = str(data.get("password", ""))
+    if not user or not pw:
+        return jsonify({"error": "Enter your SAP user and password."}), 400
+    if SAP_RFC_MOCK:                       # dev: accept any non-empty credentials
+        user, full = user.upper(), ""
+    else:
+        try:
+            user, full = _sap_login(user, pw)
+        except ValueError as exc:
+            return jsonify({"error": str(exc)}), 401
+        except RuntimeError as exc:
+            return jsonify({"error": str(exc)}), 500
+        except Exception as exc:
+            return jsonify({"error": "SAP login failed: " + str(exc)}), 502
+    session.permanent = True
+    session["user"] = user
+    session["fullName"] = full
+    session["ts"] = datetime.now().isoformat(timespec="seconds")
+    return jsonify({"user": user, "fullName": full, "mock": SAP_RFC_MOCK})
+
+
+@app.post("/api/auth/logout")
+def api_auth_logout():
+    session.clear()
+    return jsonify({"ok": True})
+
+
+@app.get("/api/auth/me")
+def api_auth_me():
+    if session.get("user"):
+        return jsonify({"user": session["user"], "fullName": session.get("fullName", "")})
+    return jsonify({"auth": False}), 401
 
 
 @app.route("/")
@@ -579,6 +707,7 @@ def api_stock_parse():
 
 
 @app.post("/api/stock/resolve")
+@require_login
 def api_stock_resolve():
     """Resolve a scanned beam/doff QR into stock-move line(s). No posting."""
     data = request.get_json(silent=True) or {}
@@ -649,7 +778,15 @@ def _validate_items(raw_items, to_sloc):
             return None, ("Batch %s is already in %s - source and destination are the same."
                           % (label, to_sloc))
         items.append({"plant": plant, "sloc": sloc, "material": material,
-                      "batch": batch, "uom": uom, "qty": qty})
+                      "batch": batch, "uom": uom, "qty": qty,
+                      # doff/scan context (carried into ZSTM_TRANSIT_D)
+                      "doffBatchNo": str(r.get("doffBatchNo", "")).strip(),
+                      "article": str(r.get("article", "")).strip(),
+                      "qrRaw": str(r.get("qrRaw", "")).strip(),
+                      "lot": str(r.get("lot", "")).strip(),
+                      "loom": str(r.get("loom", "")).strip(),
+                      "beam": str(r.get("beam", "")).strip(),
+                      "seq": str(r.get("seq", "")).strip()})
     return items, None
 
 
@@ -682,6 +819,108 @@ def api_stock_move():
     body = {"matdoc": res["matdoc"], "year": res["year"], "mock": res["mock"],
             "toSloc": to_sloc, "moved": moved}
     return jsonify(body), 201
+
+
+# ---------------------------------------------------------------------------
+# "Doff in Transit" save -- writes ZSTM_TRANSIT_D instead of posting a 311
+# ---------------------------------------------------------------------------
+
+def _next_docid_base(cur):
+    """MAX(numeric DOCID)+1 for the transit table (guarded against junk ids)."""
+    cur.execute(
+        "SELECT COALESCE(MAX(TO_BIGINT(\"DOCID\")), 0) + 1 FROM " + TRANSIT_TABLE +
+        " WHERE \"MANDT\" = ? AND \"DOCID\" LIKE_REGEXPR '^[0-9]+$'", [MANDT])
+    row = cur.fetchone()
+    return int(row[0]) if row and row[0] is not None else 1
+
+
+def insert_transit(items, to_sloc, operator):
+    """Insert each scanned doff as one 'Doff in Transit' row in ZSTM_TRANSIT_D.
+
+    One DOCID per doff (MAX+1, zero-padded to 10), all committed together and
+    retried once on a unique-key clash. NO SAP goods movement is posted.
+    Returns {"docids": [...], "mock": bool}.
+    """
+    if SAP_RFC_MOCK:                       # dev: fake ids, no HANA needed
+        base = int(datetime.now().strftime("%H%M%S"))
+        return {"docids": [str(base + i).zfill(10) for i in range(len(items))], "mock": True}
+
+    conn = _hana_conn()
+    if conn is None:
+        raise RuntimeError("HANA is not configured. Set HANA_HOST / HANA_PORT / "
+                           "HANA_USER / HANA_PASSWORD in server/.env.")
+    sql = ("INSERT INTO " + TRANSIT_TABLE + " (\"MANDT\",\"DOCID\",\"STATUS\","
+           "\"WERKS\",\"LGORT\",\"UMLGO\",\"MATNR\",\"CHARG\",\"MENGE\",\"MEINS\","
+           "\"DOFF_BATCHNO\",\"ARTICLE\",\"QR_RAW\",\"LOT\",\"LOOM\",\"BEAM\",\"SEQ\","
+           "\"OPERATOR\",\"ERNAM\",\"CREATED_AT\") "
+           "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)")
+    try:
+        for attempt in range(2):
+            cur = conn.cursor()
+            try:
+                base = _next_docid_base(cur)
+                docids = []
+                for i, it in enumerate(items):
+                    docid = str(base + i).zfill(10)
+                    docids.append(docid)
+                    cur.execute(sql, [
+                        MANDT, docid, "Doff in Transit",
+                        it["plant"], it["sloc"], to_sloc,
+                        it["material"], it.get("batch", ""), it["qty"], it["uom"],
+                        it.get("doffBatchNo", ""), it.get("article", ""), it.get("qrRaw", ""),
+                        it.get("lot", ""), it.get("loom", ""), it.get("beam", ""), it.get("seq", ""),
+                        operator, HANA["user"],
+                    ])
+                conn.commit()
+                return {"docids": docids, "mock": False}
+            except Exception as exc:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+                if attempt == 0 and getattr(exc, "errorcode", None) == 301:  # DOCID clash
+                    continue
+                raise
+            finally:
+                try:
+                    cur.close()
+                except Exception:
+                    pass
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
+@app.post("/api/stock/transit")
+@require_login
+def api_stock_transit():
+    """Save the scanned doff list as 'Doff in Transit' rows (no 311)."""
+    data = request.get_json(silent=True) or {}
+    to_sloc = str(data.get("toSloc", "")).strip().upper()
+    if not to_sloc:
+        return jsonify({"error": "Enter the destination storage location first."}), 400
+    items, err = _validate_items(data.get("items"), to_sloc)
+    if err:
+        return jsonify({"error": err}), 400
+
+    operator = session.get("user", "")
+    try:
+        res = insert_transit(items, to_sloc, operator)
+    except RuntimeError as exc:
+        return jsonify({"error": str(exc)}), 500
+    except Exception as exc:
+        return jsonify({"error": "Save failed: " + str(exc)}), 502
+
+    saved = [{"docid": d, "plant": it["plant"], "sloc": it["sloc"],
+              "material": it["material"], "batch": it["batch"],
+              "qty": _qty_str(it["qty"]), "uom": it["uom"],
+              "doffBatchNo": it.get("doffBatchNo", ""), "status": "Doff in Transit"}
+             for d, it in zip(res["docids"], items)]
+    return jsonify({"docids": res["docids"], "count": len(saved), "toSloc": to_sloc,
+                    "operator": operator, "mock": res.get("mock", False),
+                    "saved": saved}), 201
 
 
 def _ssl_context():

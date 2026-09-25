@@ -24,6 +24,12 @@
 						text="{= ${form>/sapOnline} ? (${form>/mock} ? ${i18n>sapMock} : ${i18n>sapOnline}) : ${i18n>sapOffline} }"
 						state="{= ${form>/sapOnline} ? (${form>/mock} ? 'Warning' : 'Success') : 'Error' }"
 						icon="{= ${form>/sapOnline} ? 'sap-icon://connected' : 'sap-icon://disconnected' }"/>
+					<Button icon="sap-icon://person-placeholder" type="Transparent"
+						class="stmUserChip" text="{form>/operator}" tooltip="{form>/fullName}"
+						visible="{= ${form>/operator}.length &gt; 0 }"/>
+					<Button icon="sap-icon://log" type="Transparent"
+						tooltip="{i18n>signOut}" press="onLogout"
+						visible="{= ${form>/operator}.length &gt; 0 }"/>
 				</contentRight>
 			</Bar>
 		</customHeader>
@@ -61,10 +67,11 @@
 								<Input id="inpToSloc" value="{form>/toSloc}" editable="false" class="stmChip"/>
 							</VBox>
 						</HBox>
-						<Label text="{i18n>operator}" class="stmFieldLbl sapUiSmallMarginTop"/>
-						<Input id="inpOperator" value="{form>/operator}"
-							maxLength="12" placeholder="{i18n>operatorPh}"
-							enabled="{= !${form>/busy} }"/>
+						<HBox alignItems="Center" class="sapUiSmallMarginTop">
+							<core:Icon src="sap-icon://employee" class="stmStepIcon"/>
+							<Text class="stmMeta sapUiTinyMarginBegin"
+								text="{= ${i18n>operatorIs} + ' ' + ${form>/operator} }"/>
+						</HBox>
 					</VBox>
 				</Panel>
 
@@ -146,13 +153,13 @@
 							</ColumnListItem>
 						</items>
 					</Table>
-					<Button id="btnPost"
-						text="{= ${i18n>post} + ' (' + ${form>/cart}.length + ')' }"
-						icon="sap-icon://cart" type="Accept" width="100%"
+					<Button id="btnSave"
+						text="{= ${i18n>saveTransit} + ' (' + ${form>/cart}.length + ')' }"
+						icon="sap-icon://save" type="Emphasized" width="100%"
 						class="stmPostBtn sapUiSmallMarginTop"
-						press="onPostMove"
+						press="onSaveTransit"
 						visible="{= ${form>/cart}.length > 0 }"
-						enabled="{= ${form>/cart}.length > 0 &amp;&amp; ${form>/toSloc}.length > 0 &amp;&amp; !${form>/busy} }"/>
+						enabled="{= ${form>/cart}.length > 0 &amp;&amp; ${form>/toSloc}.length > 0 &amp;&amp; ${form>/operator}.length > 0 &amp;&amp; !${form>/busy} }"/>
 				</Panel>
 
 				<!-- Session history (side by side with the list) -->
@@ -164,11 +171,12 @@
 						class="sapUiSizeCompact" noDataText="{i18n>noMoves}">
 						<columns>
 							<Column><Text text="{i18n>time}"/></Column>
-							<Column><Text text="{i18n>matdoc}"/></Column>
+							<Column><Text text="{i18n>colDoc}"/></Column>
 							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>material}"/></Column>
 							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>batch}"/></Column>
 							<Column minScreenWidth="Tablet" demandPopin="true" hAlign="End"><Text text="{i18n>qty}"/></Column>
 							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>route}"/></Column>
+							<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colStatus}"/></Column>
 						</columns>
 						<items>
 							<ColumnListItem>
@@ -179,6 +187,7 @@
 									<Text text="{form>batch}"/>
 									<Text text="{form>qty} {form>uom}"/>
 									<Text text="{form>sloc} → {form>toSloc}"/>
+									<ObjectStatus text="{form>status}" state="Warning" class="stmTransitBadge"/>
 								</cells>
 							</ColumnListItem>
 						</items>
