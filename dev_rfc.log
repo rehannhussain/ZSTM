@@ -18,3 +18,1337 @@ Global trace level        : 0
 
 2026-09-01 16:04:37.310739 [07468] >> Info entry
 	Did not find config file D:\Projects\SAP\ZSTM\sapnwrfc.ini.
+
+**** Log file opened at 2026-09-06 16:15:32.638603 UTC+05:00 (Pakistan Standard Time), Encoding UTF-8
+NW RFC Library: SDK variant, Release 750 Patch Level 19
+Compilation date          : Aug  7 2026 23:57:31
+CPIC library              : 754.2025.08.18 version 3
+NI library                : 40
+Kernel Release            : 754 Patch Level 711
+Current working directory : D:\Projects\SAP\ZSTM
+Program                   : python
+Process ID                : 05328
+User                      : IT-REHAN
+Hardware                  : PC with Windows NT 12x AMD64 Level 6 (Mod 154 Step 4)
+Binary Type               : 64bit
+Operating_system          : Windows NT 10.0
+Hostname                  : KHALAF
+IP address                : 10.3.2.33
+IPv6 address              : fe80::dce8:91e0:c02e:6a40
+NI IPv6 status            : inactive
+Global trace level        : 0 : None
+
+2026-09-06 16:15:32.636732 [41576] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:15:32 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-06 16:15:52.625305 [41928] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:15:52 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-06 16:15:55.624484 [39184] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:15:55 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-06 16:16:12.610512 [26932] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:16:12 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-06 16:16:32.602744 [40328] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:16:32 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-06 16:16:52.591787 [40320] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:16:52 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-06 16:16:55.616512 [29372] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:16:55 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-06 16:17:12.605993 [32128] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:17:12 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-06 16:17:55.626245 [08180] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:17:55 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-06 16:17:55.666457 [12172] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Sun Sep  6 16:17:55 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 08:59:52.073164 [30408] >> Error entry
+	[Handle: 2291331323072	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 08:59:52 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 08:59:52.126756 [30368] >> Error entry
+	[Handle: 2291331314864	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 08:59:52 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 09:00:01.674778 [32448] >> Error entry
+	[Handle: 2291294911760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:00:01 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 09:00:01.753963 [25768] >> Error entry
+	[Handle: 2291294911760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:00:01 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 09:00:22.221687 [26068] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:00:22 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 09:00:22.253710 [16300] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:00:22 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 09:00:42.234021 [32592] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:00:42 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 09:00:42.254093 [02912] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:00:42 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 09:01:05.537866 [27932] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:01:05 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 09:01:05.572377 [41140] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:01:05 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10065
+ERRNO TEXT  WSAEHOSTUNREACH: No route to host
+COUNTER     2
+
+2026-09-07 09:01:43.642523 [38216] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:01:43 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:02:02.275367 [01860] >> Error entry
+	[Handle: 2291294920304	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:02:02 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:02:03.657004 [35976] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:02:03 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:02:23.668998 [16700] >> Error entry
+	[Handle: 2291294919264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:02:23 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:02:24.724553 [27332] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:02:24 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:02:44.749500 [03176] >> Error entry
+	[Handle: 2291331298448	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:02:44 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:02:45.816295 [28708] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:02:45 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:03:06.928719 [28020] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:03:06 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:03:28.017942 [21756] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:03:28 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:03:48.023461 [37916] >> Error entry
+	[Handle: 2291294919264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:03:48 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:03:49.116935 [31620] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:03:49 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:04:10.218748 [21784] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:04:10 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:04:30.233255 [28212] >> Error entry
+	[Handle: 2291294919264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:04:30 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:04:31.336554 [35544] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:04:31 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:04:53.526047 [28120] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:04:53 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:05:14.617946 [13384] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:05:14 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:05:36.053017 [38624] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:05:36 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:05:36.101438 [04816] >> Error entry
+	[Handle: 2291294919264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:05:36 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:05:57.171303 [34260] >> Error entry
+	[Handle: 2291294981424	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:05:57 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:06:18.264256 [22376] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:06:18 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:06:38.285049 [28488] >> Error entry
+	[Handle: 2291294919264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:06:38 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:06:39.345024 [36024] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:06:39 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:07:00.454527 [37152] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:07:00 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:07:21.544359 [28676] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:07:21 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:07:41.559897 [26388] >> Error entry
+	[Handle: 2291294919264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:07:41 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:07:42.206896 [37036] >> Error entry
+	[Handle: 2291295071504	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:07:42 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:07:42.608348 [16196] >> Error entry
+	[Handle: 2291294900080	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:07:42 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:08:03.713547 [01812] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:08:03 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:08:24.816515 [27932] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:08:24 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:08:44.829631 [16368] >> Error entry
+	[Handle: 2291295117264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:08:44 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:08:45.883890 [24672] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:08:45 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:09:06.975787 [18688] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:09:06 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:09:28.035779 [36732] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:09:28 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:09:48.062797 [08028] >> Error entry
+	[Handle: 2291295117264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:09:48 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:09:49.095815 [16716] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:09:49 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:10:10.216236 [34556] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:10:10 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:10:30.234629 [13392] >> Error entry
+	[Handle: 2291295117264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:10:30 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:10:31.308366 [37752] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:10:31 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:10:52.349348 [29680] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:10:52 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:11:13.427793 [14480] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:11:13 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:11:33.418250 [32456] >> Error entry
+	[Handle: 2291295118304	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:11:33 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:11:34.544625 [33496] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:11:34 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:11:55.646726 [24612] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:11:55 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:12:16.753081 [22980] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:12:16 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:12:36.749483 [11460] >> Error entry
+	[Handle: 2291295117264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:12:36 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:12:37.847944 [38624] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:12:37 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:12:58.938383 [07460] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:12:58 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:13:20.022947 [12492] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:13:20 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:13:39.979963 [26260] >> Error entry
+	[Handle: 2291331304992	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:13:39 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:14:10.224875 [39660] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:14:10 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:14:31.525279 [15332] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:14:31 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:15:10.202341 [36848] >> Error entry
+	[Handle: 2291295109760	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:15:10 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+
+2026-09-07 09:15:30.229082 [38348] >> Error entry
+	[Handle: 2291295117264	ConvID: 	Target: 	SysID: 	SysNr: 	User: 	Codepage: 4103]
+	RfcCommunicationException: Return Value: 20, Code: RFC_COMMUNICATION_FAILURE, Message: 
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner '10.10.1.203:3330' not reached
+TIME        Mon Sep  7 09:15:30 2026
+RELEASE     754
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      D:/depot/bas/754_REL/src/base/ni/nixxi.cpp
+LINE        3457
+DETAIL      NiPConnect2: 10.10.1.203:3330
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     2
+

@@ -1,8 +1,12 @@
 # Deploying ZSTM on SUSE Linux Enterprise Server 15 SP7
 
 Target: `SLES 15 SP7` (x86-64, VMware). Serves the app with **gunicorn over
-HTTPS**, managed by **systemd**, posting real 311 moves via **pyrfc**, with a
-TLS cert signed by the existing **Kassim Local CA**.
+HTTPS**, managed by **systemd**, with a TLS cert signed by the existing
+**Kassim Local CA**. Operators **sign in with their own SAP user/password**
+(validated by an RFC logon via **pyrfc**, 8-hour session), and each scanned doff
+is saved as **"Doff in Transit"** into `SAPHANADB.ZSTM_TRANSIT_D` — no 311 goods
+movement. `pyrfc` + the NW RFC SDK are still required (for the login), and the
+transit table must exist with `INSERT` granted to the HANA user (§7b).
 
 Throughout, replace `<VM_IP>` with the VM's LAN address (find it with
 `ip -4 addr show | grep inet`). Commands are run as `root` unless noted.
@@ -158,13 +162,40 @@ chmod 600 /opt/zstm/server/.env
 Set the real values:
 
 - `SAP_ASHOST`, `SAP_SYSNR`, `SAP_CLIENT`, `SAP_USER`, `SAP_PASSWD` (or `SAP_DEST`)
+  — `SAP_USER`/`SAP_PASSWD` is the service user used by the app; **operators log
+  in with their own SAP credentials** at runtime.
 - `HANA_HOST`, `HANA_PORT`, `HANA_USER`, `HANA_PASSWORD`
 - `SAP_RFC_MOCK=false`
+- **`SESSION_SECRET`** — a long, stable random string so 8-hour logins survive a
+  restart. Generate one: `python3 -c "import secrets; print(secrets.token_hex(32))"`
+- **`SESSION_COOKIE_SECURE=true`** — set this on the VM (served over HTTPS) so the
+  session cookie is https-only. `SESSION_HOURS=8` is the default.
 - `PORT` / `USE_HTTPS` are **ignored** under gunicorn (systemd sets the bind +
   TLS), so they don't matter here.
 
 Confirm the VM can actually reach SAP + HANA: `nc -vz <SAP_ASHOST> 33<sysnr>`
 and `nc -vz <HANA_HOST> <HANA_PORT>`.
+
+---
+
+## 7b. Create the transit table + grant the HANA user
+
+Saving writes `SAPHANADB.ZSTM_TRANSIT_D`; it must exist and `HANA_USER` (e.g.
+`ZMSQL`) must be allowed to insert. A **DBA** runs the DDL and the grant once:
+
+```bash
+# the DDL ships in the repo at /opt/zstm/db/ZSTM_TRANSIT_D.sql
+cat /opt/zstm/db/ZSTM_TRANSIT_D.sql        # review, then run it as a HANA admin
+```
+
+```sql
+-- as a user allowed to CREATE in SAPHANADB (run the CREATE from the .sql file), then:
+GRANT SELECT, INSERT, UPDATE ON SAPHANADB.ZSTM_TRANSIT_D TO ZMSQL;
+```
+
+Until the table exists and the grant is in place, a real **Save** returns a clear
+HANA error (`insufficient privilege` / table not found). Login and scanning work
+regardless. Operators must also be permitted **RFC logon** (`S_RFC`) to sign in.
 
 ---
 
@@ -227,8 +258,9 @@ curl --cacert /opt/zstm/server/cert.pem https://<VM_IP>:8010/api/health
 ```
 
 Then from an iPad/phone on the LAN: open `https://<VM_IP>:8010` in the browser
-(no cert warning if the CA is installed), scan a doff, and Add → Post move.
-Install to the home screen for the standalone app.
+(no cert warning if the CA is installed), **sign in with a SAP user/password**,
+scan a doff, Add, and **Save · Doff in Transit**. Install to the home screen for
+the standalone app.
 
 ---
 
@@ -251,6 +283,12 @@ unzip -q -o /tmp/zstm.zip -d /tmp
 cp -a /tmp/ZSTM-main/webapp/. /opt/zstm/webapp/ && cp -a /tmp/ZSTM-main/server/. /opt/zstm/server/
 chown -R zstm:zstm /opt/zstm && systemctl restart zstm
 ```
+
+> **Upgrading to the login + "Doff in Transit" version** (from the old 311 build):
+> after pulling, also add **`SESSION_SECRET`** and **`SESSION_COOKIE_SECURE=true`**
+> to `server/.env`, run the transit table + grant once (**§7b**), then
+> `systemctl restart zstm`. Operators now sign in with their SAP credentials and
+> Save records `ZSTM_TRANSIT_D` instead of posting a 311.
 
 ## Troubleshooting
 
@@ -358,7 +396,9 @@ SAPNWRFC_HOME=/usr/local/sap/nwrfcsdk LD_LIBRARY_PATH=/usr/local/sap/nwrfcsdk/li
 ```
 
 **A‑4. Fill `.env`, then start the service.** Edit with `vi` (see gotchas), set
-the real `SAP_*` / `HANA_*` values and **`SAP_RFC_MOCK=false`**:
+the real `SAP_*` / `HANA_*` values, **`SAP_RFC_MOCK=false`**, a stable
+**`SESSION_SECRET`** (`python3 -c "import secrets; print(secrets.token_hex(32))"`)
+and **`SESSION_COOKIE_SECURE=true`**. Also do the transit table + grant from §7b:
 
 ```bash
 vi /opt/zstm/server/.env
