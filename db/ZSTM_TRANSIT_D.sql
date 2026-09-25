@@ -27,6 +27,10 @@ CREATE COLUMN TABLE "SAPHANADB"."ZSTM_TRANSIT_D" (
     "MEINS"            NVARCHAR(3)   DEFAULT ''  NOT NULL,   -- unit of measure
 
     -- doff identity / scan context (not present on a standard document)
+    -- NOTE: keep >= the source length. SAPHANADB.ZWV_DOF_DD2.DOFF_BATCHNO is
+    -- NVARCHAR(20); 30 leaves headroom. If an existing table was created
+    -- smaller (e.g. 15) and Save fails with HANA 274 "value too large", widen it:
+    --   ALTER TABLE SAPHANADB.ZSTM_TRANSIT_D ALTER (DOFF_BATCHNO NVARCHAR(24));
     "DOFF_BATCHNO"     NVARCHAR(30)  DEFAULT ''  NOT NULL,   -- e.g. 266314KT3L737A1901
     "ARTICLE"          NVARCHAR(40)  DEFAULT ''  NOT NULL,   -- e.g. FF FF-14561-S
     "QR_RAW"           NVARCHAR(50)  DEFAULT ''  NOT NULL,   -- scanned code e.g. 266314-737-A19-01
