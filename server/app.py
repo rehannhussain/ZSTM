@@ -660,6 +660,23 @@ def _active_badges():
         conn.close()
 
 
+def _badge_expired(vt):
+    """True if a badge's VALID_TO is set and in the past. Tolerates both a real
+    DATE/date and the SAP DATS string form NVARCHAR(8) ('' / '00000000' = no
+    expiry) that the table may carry depending on how it was created."""
+    if not vt:
+        return False
+    if isinstance(vt, date):
+        return vt < date.today()
+    s = str(vt).strip()
+    if not s or s == "00000000":
+        return False
+    try:
+        return datetime.strptime(s, "%Y%m%d").date() < date.today()
+    except ValueError:
+        return False        # unparseable -> don't block a login on it
+
+
 def _pin_lookup(pin):
     """The single ACTIVE badge whose PIN matches, or None (PINs are unique)."""
     for b in _active_badges():
@@ -774,8 +791,7 @@ def api_auth_login_qr():
         return jsonify({"error": "Badge not recognized."}), 401
     if row.get("active") != "X":
         return jsonify({"error": "This badge is disabled."}), 401
-    vt = row.get("validTo")
-    if vt and vt < date.today():
+    if _badge_expired(row.get("validTo")):
         return jsonify({"error": "This badge has expired."}), 401
     return _sign_in(row, "QR")
 
@@ -796,8 +812,7 @@ def api_auth_login_pin():
         return jsonify({"error": "PIN lookup failed: " + str(exc)}), 502
     if not row:
         return jsonify({"error": "Wrong PIN."}), 401
-    vt = row.get("validTo")
-    if vt and vt < date.today():
+    if _badge_expired(row.get("validTo")):
         return jsonify({"error": "This badge has expired."}), 401
     return _sign_in(row, "PIN")
 
