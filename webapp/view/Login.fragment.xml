@@ -14,46 +14,47 @@
 				<Text text="{i18n>headerSub}" class="stmLoginSub"/>
 			</VBox>
 
-			<!-- sign-in form -->
+			<!-- Sign in EITHER by scanning a badge (auto) OR with a PIN + button. -->
 			<VBox class="stmLoginForm">
 				<Title text="{i18n>loginTitle}" class="stmLoginHeading"/>
 				<Text text="{i18n>loginPrompt}" class="stmLoginPrompt"/>
 
-				<Label text="{i18n>loginUser}" class="stmLoginLbl"/>
+				<!-- 1) Scan a badge: scanning alone signs in, no button press -->
+				<Label text="{i18n>loginBadge}" class="stmLoginLbl"/>
 				<HBox class="stmField" alignItems="Center">
-					<core:Icon src="sap-icon://person-placeholder" class="stmFieldIcon"/>
-					<Input id="loginUser" class="stmFieldInput" placeholder="{i18n>loginUserPh}"
-						submit=".onLoginSubmit">
+					<core:Icon src="sap-icon://bar-code" class="stmFieldIcon"/>
+					<Input id="loginBadge" type="Password" class="stmFieldInput"
+						placeholder="{i18n>loginBadgePh}" submit=".onBadgeScanned">
 						<layoutData><FlexItemData growFactor="1"/></layoutData>
 					</Input>
 				</HBox>
 
-				<Label text="{i18n>loginPass}" class="stmLoginLbl sapUiSmallMarginTop"/>
+				<Button id="scanBadgeBtn" text="{i18n>scanBadge}" type="Emphasized"
+					icon="sap-icon://camera" width="100%" press=".onScanBadge"
+					class="stmScanBadgeBtn sapUiTinyMarginTop"/>
+
+				<Text text="{i18n>loginOr}" class="stmLoginOr sapUiSmallMarginTop"/>
+
+				<!-- 2) Or enter a PIN and press Sign in -->
+				<Label text="{i18n>loginPin}" class="stmLoginLbl"/>
 				<HBox class="stmField" alignItems="Center">
 					<core:Icon src="sap-icon://locked" class="stmFieldIcon"/>
-					<Input id="loginPass" type="Password" class="stmFieldInput"
-						placeholder="{i18n>loginPassPh}" submit=".onLoginSubmit">
+					<Input id="loginPin" type="Password" class="stmFieldInput"
+						placeholder="{i18n>loginPinPh}" submit=".onLoginSubmit">
 						<layoutData><FlexItemData growFactor="1"/></layoutData>
 					</Input>
 					<core:Icon id="loginEye" src="sap-icon://show" class="stmFieldEye"
 						press=".onTogglePass"/>
 				</HBox>
 
+				<Button id="loginBtn" text="{i18n>signIn}" type="Default"
+					icon="sap-icon://log" width="100%" press=".onLoginSubmit"
+					class="stmLoginBtn sapUiTinyMarginTop"/>
+
 				<HBox justifyContent="SpaceBetween" class="stmLoginMeta sapUiSmallMarginTop">
 					<Text text="{i18n>loginClient}"/>
 					<Text text="{i18n>loginPlant}"/>
 				</HBox>
-
-				<Button id="loginBtn" text="{i18n>signIn}" type="Emphasized"
-					icon="sap-icon://log" width="100%" press=".onLoginSubmit"
-					class="stmLoginBtn sapUiSmallMarginTop"/>
-
-				<Text text="{i18n>or}" class="stmLoginOr sapUiSmallMarginTop"/>
-
-				<Button id="scanBadgeBtn" text="{i18n>scanBadge}" type="Default"
-					icon="sap-icon://bar-code" width="100%" press=".onScanBadge"
-					class="stmScanBadgeBtn"/>
-				<Text text="{i18n>scanBadgeHint}" class="stmLoginBadgeHint"/>
 
 				<HBox class="stmLoginNote sapUiSmallMarginTop">
 					<core:Icon src="sap-icon://shield" class="stmLoginNoteIcon"/>

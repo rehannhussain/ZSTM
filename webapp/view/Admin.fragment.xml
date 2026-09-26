@@ -7,13 +7,18 @@
 		<VBox class="stmAdminAdd">
 			<Text text="{i18n>adminAddHint}" class="stmMeta"/>
 			<HBox alignItems="End" class="sapUiTinyMarginTop">
-				<VBox width="40%">
-					<Label text="{i18n>loginUser}" class="stmLoginLbl"/>
-					<Input value="{admin>/newUser}" placeholder="{i18n>loginUserPh}"/>
+				<VBox width="28%">
+					<Label text="{i18n>adminUser}" class="stmLoginLbl"/>
+					<Input value="{admin>/newUser}" placeholder="{i18n>adminUserPh}"/>
 				</VBox>
-				<VBox width="45%" class="sapUiTinyMarginBegin">
+				<VBox width="34%" class="sapUiTinyMarginBegin">
 					<Label text="{i18n>adminFullName}" class="stmLoginLbl"/>
-					<Input value="{admin>/newName}" submit=".onAdminCreate"/>
+					<Input value="{admin>/newName}"/>
+				</VBox>
+				<VBox width="22%" class="sapUiTinyMarginBegin">
+					<Label text="{i18n>adminPin}" class="stmLoginLbl"/>
+					<Input value="{admin>/newPin}" type="Password" placeholder="{i18n>adminPinPh}"
+						submit=".onAdminCreate"/>
 				</VBox>
 				<Button text="{i18n>adminAdd}" icon="sap-icon://add" type="Emphasized"
 					press=".onAdminCreate" class="sapUiTinyMarginBegin"/>
@@ -35,6 +40,8 @@
 							text="{= ${admin>active} === 'X' ? ${i18n>adminActive} : ${i18n>adminRevoked} }"
 							state="{= ${admin>active} === 'X' ? 'Success' : 'None' }"/>
 						<HBox class="sapUiTinyMarginTop">
+							<Button icon="sap-icon://key" type="Transparent"
+								tooltip="{i18n>adminResetPin}" press=".onResetPin"/>
 							<Button icon="sap-icon://print" type="Transparent"
 								tooltip="{i18n>adminPrint}" press=".onPrintBadge"/>
 							<Button type="Transparent"

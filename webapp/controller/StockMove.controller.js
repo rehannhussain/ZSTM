@@ -98,9 +98,13 @@ sap.ui.define([
 				});
 			}
 			this._pLogin.then(function (oDialog) {
-				var oPass = this.byId("loginPass");
-				if (oPass) { oPass.setValue(""); oPass.setValueState(ValueState.None); }
+				var oBadge = this.byId("loginBadge");
+				if (oBadge) { oBadge.setValue(""); oBadge.setValueState(ValueState.None); }
+				var oPin = this.byId("loginPin");
+				if (oPin) { oPin.setValue(""); oPin.setValueState(ValueState.None); }
 				if (!oDialog.isOpen()) { oDialog.open(); }
+				// Focus the badge field so a handheld scanner's keystrokes land there.
+				if (oBadge) { setTimeout(function () { oBadge.focus(); }, 0); }
 			}.bind(this));
 		},
 
@@ -109,28 +113,64 @@ sap.ui.define([
 			oPromise.reject();
 		},
 
-		/** Show/hide the password field. */
+		/** Show/hide the PIN field. */
 		onTogglePass: function () {
-			var oPass = this.byId("loginPass"), oEye = this.byId("loginEye");
-			var bHidden = oPass.getType() === "Password";
-			oPass.setType(bHidden ? "Text" : "Password");
+			var oPin = this.byId("loginPin"), oEye = this.byId("loginEye");
+			var bHidden = oPin.getType() === "Password";
+			oPin.setType(bHidden ? "Text" : "Password");
 			oEye.setSrc(bHidden ? "sap-icon://hide" : "sap-icon://show");
 		},
 
+		/** Badge committed (handheld scanner Enter / manual entry): scan = sign in. */
+		onBadgeScanned: function () {
+			var oBadge = this.byId("loginBadge");
+			var sToken = (oBadge.getValue() || "").trim();
+			if (!sToken) {
+				oBadge.setValueState(ValueState.Error);
+				MessageToast.show(this._t("loginNeedBadge"));
+				return;
+			}
+			this._qrLogin(sToken);
+		},
+
+		/** QR-badge sign-in: the scan alone signs the operator in (no button). */
+		_qrLogin: function (sToken) {
+			var oBadge = this.byId("loginBadge");
+			fetch("api/auth/login-qr", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ qr: sToken })
+			})
+				.then(function (res) {
+					return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+				})
+				.then(function (r) {
+					if (!r.ok) {
+						if (oBadge) { oBadge.setValueState(ValueState.Error); oBadge.setValue(""); }
+						MessageBox.error(r.body && r.body.error ? r.body.error : this._t("loginFailed"),
+							{ title: this._t("loginTitle") });
+						return;
+					}
+					this._applyLogin(r.body);
+				}.bind(this))
+				.catch(function () { MessageBox.error(this._t("errNetwork")); }.bind(this));
+		},
+
+		/** PIN-only sign-in (fallback): type the PIN and press Sign in. */
 		onLoginSubmit: function () {
-			var oUser = this.byId("loginUser"), oPass = this.byId("loginPass");
-			var sUser = (oUser.getValue() || "").trim();
-			var sPass = oPass.getValue() || "";
-			if (!sUser || !sPass) {
-				MessageToast.show(this._t("loginNeed"));
+			var oPin = this.byId("loginPin");
+			var sPin = (oPin.getValue() || "").trim();
+			if (!sPin) {
+				oPin.setValueState(ValueState.Error);
+				MessageToast.show(this._t("loginNeedPin"));
 				return;
 			}
 			var oBtn = this.byId("loginBtn");
 			oBtn.setBusy(true);
-			fetch("api/auth/login", {
+			fetch("api/auth/login-pin", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user: sUser, password: sPass })
+				body: JSON.stringify({ pin: sPin })
 			})
 				.then(function (res) {
 					return res.json().then(function (body) { return { ok: res.ok, body: body }; });
@@ -138,7 +178,8 @@ sap.ui.define([
 				.then(function (r) {
 					oBtn.setBusy(false);
 					if (!r.ok) {
-						oPass.setValueState(ValueState.Error);
+						oPin.setValueState(ValueState.Error);
+						oPin.setValue("");
 						MessageBox.error(r.body && r.body.error ? r.body.error : this._t("loginFailed"),
 							{ title: this._t("loginTitle") });
 						return;
@@ -151,7 +192,7 @@ sap.ui.define([
 				}.bind(this));
 		},
 
-		/** Apply a successful sign-in (password, QR, or /me restore). */
+		/** Apply a successful sign-in (QR scan, PIN, or /me restore). */
 		_applyLogin: function (body, bSilent) {
 			var oModel = this.getView().getModel("form");
 			oModel.setProperty("/operator", body.user || "");
@@ -166,29 +207,9 @@ sap.ui.define([
 			}
 		},
 
-		/** Badge (QR) sign-in: scan a badge from the login screen. */
+		/** Badge (QR) sign-in: open the camera to read the badge into the field. */
 		onScanBadge: function () {
 			this._openCamera("badge");
-		},
-
-		_doQrLogin: function (sToken) {
-			fetch("api/auth/login-qr", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ qr: sToken })
-			})
-				.then(function (res) {
-					return res.json().then(function (body) { return { ok: res.ok, body: body }; });
-				})
-				.then(function (r) {
-					if (!r.ok) {
-						MessageBox.error(r.body && r.body.error ? r.body.error : this._t("loginFailed"),
-							{ title: this._t("loginTitle") });
-						return;
-					}
-					this._applyLogin(r.body);
-				}.bind(this))
-				.catch(function () { MessageBox.error(this._t("errNetwork")); }.bind(this));
 		},
 
 		onLogout: function () {
@@ -621,7 +642,7 @@ sap.ui.define([
 				var sValue = String(code.data).trim();
 				this._oScanDialog.close();
 				if (this._camTarget === "badge") {
-					this._doQrLogin(sValue);          // badge scan -> QR login
+					this._qrLogin(sValue);            // badge scan -> sign in immediately
 				} else {
 					this.getView().getModel("form").setProperty("/scanText", sValue);
 					this.onScan();                    // doff scan -> resolve + add
@@ -650,7 +671,7 @@ sap.ui.define([
 		onOpenAdmin: function () {
 			var oView = this.getView();
 			if (!oView.getModel("admin")) {
-				oView.setModel(new JSONModel({ badges: [], newUser: "", newName: "" }), "admin");
+				oView.setModel(new JSONModel({ badges: [], newUser: "", newName: "", newPin: "" }), "admin");
 			}
 			if (!this._pAdmin) {
 				this._pAdmin = Fragment.load({
@@ -679,20 +700,63 @@ sap.ui.define([
 			var oModel = this.getView().getModel("admin");
 			var sUser = (oModel.getProperty("/newUser") || "").trim();
 			var sName = (oModel.getProperty("/newName") || "").trim();
+			var sPin = (oModel.getProperty("/newPin") || "").trim();
 			if (!sUser) { MessageToast.show(this._t("adminNeedUser")); return; }
+			if (!/^\d{4,8}$/.test(sPin)) { MessageToast.show(this._t("adminNeedPin")); return; }
 			fetch("api/admin/qr", {
 				method: "POST", headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ sapUser: sUser, fullName: sName })
+				body: JSON.stringify({ sapUser: sUser, fullName: sName, pin: sPin })
 			})
 				.then(function (res) { return res.json().then(function (b) { return { ok: res.ok, body: b }; }); })
 				.then(function (r) {
 					if (!r.ok) { MessageBox.error(r.body && r.body.error ? r.body.error : this._t("adminAddFail")); return; }
 					oModel.setProperty("/newUser", "");
 					oModel.setProperty("/newName", "");
+					oModel.setProperty("/newPin", "");
 					this._loadBadges();
 					this._printBadge(r.body.token, r.body.sapUser, r.body.fullName);
 				}.bind(this))
 				.catch(function () { MessageBox.error(this._t("errNetwork")); }.bind(this));
+		},
+
+		/** Reset a badge's PIN: prompt for a new one and send it (admin only). */
+		onResetPin: function (oEvent) {
+			var o = oEvent.getSource().getBindingContext("admin").getObject();
+			this._promptPin(o.qrId, o.sapUser);
+		},
+
+		_promptPin: function (sQrId, sUser) {
+			var that = this;
+			var oInput = new sap.m.Input({ type: "Password", placeholder: this._t("adminPinPh"), width: "100%" });
+			if (this._oPinDlg) { this._oPinDlg.destroy(); }
+			this._oPinDlg = new Dialog({
+				title: this._t("adminResetTitle", [sUser]),
+				contentWidth: "18rem",
+				content: [ new sap.m.VBox({
+					items: [ new sap.m.Text({ text: this._t("adminResetPrompt", [sUser]) }), oInput ] }) ],
+				beginButton: new Button({
+					text: "OK", type: "Emphasized",
+					press: function () {
+						var sPin = (oInput.getValue() || "").trim();
+						if (!/^\d{4,8}$/.test(sPin)) { MessageToast.show(that._t("adminNeedPin")); return; }
+						that._oPinDlg.close();
+						fetch("api/admin/qr/pin", {
+							method: "POST", headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ qrId: sQrId, pin: sPin })
+						})
+							.then(function (res) { return res.json().then(function (b) { return { ok: res.ok, body: b }; }); })
+							.then(function (r) {
+								if (r.ok) { MessageToast.show(that._t("adminPinSet", [sUser])); }
+								else { MessageBox.error(r.body && r.body.error ? r.body.error : that._t("adminAddFail")); }
+							})
+							.catch(function () { MessageBox.error(that._t("errNetwork")); });
+					}
+				}),
+				endButton: new Button({ text: this._t("close"), press: function () { that._oPinDlg.close(); } }),
+				afterClose: function () { that._oPinDlg.destroy(); that._oPinDlg = null; }
+			});
+			this.getView().addDependent(this._oPinDlg);
+			this._oPinDlg.open();
 		},
 
 		onAdminToggle: function (oEvent) {

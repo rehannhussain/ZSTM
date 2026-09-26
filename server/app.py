@@ -28,6 +28,7 @@ document number so the UI can be exercised end to end.
 
 import os
 import re
+import sys
 import secrets
 import mimetypes
 from functools import wraps
@@ -35,6 +36,7 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 
 from flask import Flask, request, jsonify, send_from_directory, session
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Serve the PWA manifest with the correct content type (some Python installs
 # don't know .webmanifest, and browsers ignore a manifest served as octet-stream).
@@ -131,18 +133,13 @@ HANA_TIMEOUT_MS = int(os.environ.get("HANA_TIMEOUT_MS", "5000"))
 DEFAULT_UOM = os.environ.get("DEFAULT_UOM", "").strip().upper()
 
 # --- Session / operator login ---------------------------------------------
-# Operators sign in with their own SAP GUI user + password (validated by an RFC
-# logon); the session then carries the operator id for 8 hours. SESSION_SECRET
-# must be a stable value in .env for logins to survive a restart.
+# Operators sign in ONLY by scanning their login badge (QR token) and entering
+# their PIN -- see ZSTM_LOGIN_QR. There is no SAP user/password login. The
+# session then carries the operator id for 8 hours. SESSION_SECRET must be a
+# stable value in .env for logins to survive a restart.
 SESSION_SECRET = os.environ.get("SESSION_SECRET", "")
 SESSION_HOURS = int(os.environ.get("SESSION_HOURS", "8"))
 SESSION_COOKIE_SECURE = _envbool("SESSION_COOKIE_SECURE", False)
-# Base RFC coordinates for an operator logon = the system params WITHOUT the
-# service user/passwd; the operator's own credentials are substituted per login.
-RFC_BASE = {k: v for k, v in {
-    "ashost": _rfc["ashost"], "sysnr": _rfc["sysnr"],
-    "client": _rfc["client"], "lang": _rfc["lang"], "dest": _rfc["dest"],
-}.items() if v}
 
 # Custom "Doff in Transit" log table (created by db/ZSTM_TRANSIT_D.sql).
 TRANSIT_TABLE = os.environ.get("ZSTM_TRANSIT_TABLE", "SAPHANADB.ZSTM_TRANSIT_D")
@@ -150,9 +147,12 @@ TRANSIT_TABLE = os.environ.get("ZSTM_TRANSIT_TABLE", "SAPHANADB.ZSTM_TRANSIT_D")
 # QR-badge login table (created by db/ZSTM_LOGIN_QR.sql) + who may manage badges.
 LOGIN_QR_TABLE = os.environ.get("ZSTM_LOGIN_QR_TABLE", "SAPHANADB.ZSTM_LOGIN_QR")
 ADMIN_USERS = set(u.strip().upper() for u in os.environ.get("ADMIN_USERS", "").split(",") if u.strip())
-# In-memory badge store used only in SAP_RFC_MOCK mode so the admin + QR-login
-# flow can be exercised without HANA. Never used against a real system.
+# Login audit trail (created by db/ZSTM_LOGIN_LOG.sql): one row per sign-in.
+LOGIN_LOG_TABLE = os.environ.get("ZSTM_LOGIN_LOG_TABLE", "SAPHANADB.ZSTM_LOGIN_LOG")
+# In-memory stores used only in SAP_RFC_MOCK mode so the admin + QR-login flow
+# can be exercised without HANA. Never used against a real system.
 _MOCK_BADGES = []
+_MOCK_LOGINS = []
 
 # --- Doff QR resolve (ZWV_DOF_D / ZWV_DOF_DD2) -----------------------------
 # The scanned QR is a beam/doff label like '261042-528-1446-01 TRIAL':
@@ -553,56 +553,8 @@ app.config.update(
 
 
 # ---------------------------------------------------------------------------
-# Operator login (validated against SAP by an RFC logon) + session guard
+# Operator login (QR badge + PIN, see ZSTM_LOGIN_QR) + session guard
 # ---------------------------------------------------------------------------
-
-def _sap_full_name(conn, user):
-    """Best-effort full name for a signed-in user; '' if not readable."""
-    try:
-        res = conn.call("BAPI_USER_GET_DETAIL", USERNAME=user.upper())
-        addr = res.get("ADDRESS") or {}
-        full = (addr.get("FULLNAME") or "").strip()
-        if full:
-            return full
-        fn = (addr.get("FIRSTNAME") or "").strip()
-        ln = (addr.get("LASTNAME") or "").strip()
-        return (fn + " " + ln).strip()
-    except Exception:
-        return ""
-
-
-def _sap_login(user, password):
-    """Validate an operator's SAP GUI credentials with an RFC logon.
-
-    Returns (USER_UPPER, full_name). Raises ValueError with an operator-facing
-    message on bad/expired credentials, RuntimeError if RFC isn't available.
-    The password is used only to open (and immediately close) the connection.
-    """
-    if not RFC_BASE:
-        raise RuntimeError("SAP RFC is not configured (SAP_ASHOST/SYSNR/CLIENT or SAP_DEST).")
-    try:
-        from pyrfc import Connection
-    except ImportError as exc:
-        raise RuntimeError("pyrfc is not installed (needs the SAP NW RFC SDK).") from exc
-
-    try:
-        conn = Connection(**dict(RFC_BASE, user=user, passwd=password))
-    except Exception as exc:
-        low = str(exc).lower()
-        if "password" in low and any(w in low for w in ("expired", "initial", "change")):
-            raise ValueError("Your SAP password has expired - change it in SAP GUI, then sign in.")
-        if any(w in low for w in ("incorrect", "name or password", "logon", "not authorized", "locked")):
-            raise ValueError("Wrong SAP user or password.")
-        raise
-    try:
-        full = _sap_full_name(conn, user)
-    finally:
-        try:
-            conn.close()
-        except Exception:
-            pass
-    return user.strip().upper(), full
-
 
 def require_login(fn):
     """Guard an endpoint: 401 unless a valid operator session is present."""
@@ -630,32 +582,6 @@ def require_admin(fn):
     return wrapper
 
 
-@app.post("/api/auth/login")
-def api_auth_login():
-    data = request.get_json(silent=True) or {}
-    user = str(data.get("user", "")).strip()
-    pw = str(data.get("password", ""))
-    if not user or not pw:
-        return jsonify({"error": "Enter your SAP user and password."}), 400
-    if SAP_RFC_MOCK:                       # dev: accept any non-empty credentials
-        user, full = user.upper(), ""
-    else:
-        try:
-            user, full = _sap_login(user, pw)
-        except ValueError as exc:
-            return jsonify({"error": str(exc)}), 401
-        except RuntimeError as exc:
-            return jsonify({"error": str(exc)}), 500
-        except Exception as exc:
-            return jsonify({"error": "SAP login failed: " + str(exc)}), 502
-    session.permanent = True
-    session["user"] = user
-    session["fullName"] = full
-    session["method"] = "sap"
-    session["ts"] = datetime.now().isoformat(timespec="seconds")
-    return jsonify({"user": user, "fullName": full, "isAdmin": _is_admin(), "mock": SAP_RFC_MOCK})
-
-
 @app.post("/api/auth/logout")
 def api_auth_logout():
     session.clear()
@@ -674,29 +600,77 @@ def api_auth_me():
 # QR-badge login + badge administration (SAPHANADB.ZSTM_LOGIN_QR)
 # ---------------------------------------------------------------------------
 
+PIN_RE = re.compile(r"^\d{4,8}$")
+
+
+def _valid_pin(pin):
+    """A PIN is 4 to 8 digits."""
+    return bool(PIN_RE.match(pin or ""))
+
+
 def _qr_lookup(token):
-    """Return {qrId, sapUser, fullName, active, validTo} for a scanned token, or None."""
+    """Return {qrId, sapUser, fullName, active, validTo, pinHash} for a token, or None."""
     if SAP_RFC_MOCK:
         for b in _MOCK_BADGES:
             if b["token"] == token:
                 return {"qrId": b["qrId"], "sapUser": b["sapUser"], "fullName": b["fullName"],
-                        "active": b["active"], "validTo": None}
+                        "active": b["active"], "validTo": None, "pinHash": b.get("pinHash", "")}
         return None
     conn = _hana_conn()
     if conn is None:
         raise RuntimeError("HANA is not configured for badge login.")
     try:
         cur = conn.cursor()
-        cur.execute("SELECT \"QR_ID\",\"SAP_USER\",\"FULL_NAME\",\"ACTIVE\",\"VALID_TO\" FROM "
+        cur.execute("SELECT \"QR_ID\",\"SAP_USER\",\"FULL_NAME\",\"ACTIVE\",\"VALID_TO\",\"PIN_HASH\" FROM "
                     + LOGIN_QR_TABLE + " WHERE \"MANDT\"=? AND \"QR_TOKEN\"=?", [MANDT, token])
         r = cur.fetchone()
         cur.close()
         if not r:
             return None
         return {"qrId": (r[0] or "").strip(), "sapUser": (r[1] or "").strip(),
-                "fullName": (r[2] or "").strip(), "active": (r[3] or "").strip(), "validTo": r[4]}
+                "fullName": (r[2] or "").strip(), "active": (r[3] or "").strip(),
+                "validTo": r[4], "pinHash": (r[5] or "").strip()}
     finally:
         conn.close()
+
+
+def _active_badges():
+    """All ACTIVE badges as {qrId, sapUser, fullName, validTo, pinHash}. Used by
+    the PIN-only login and PIN-uniqueness check (PINs are salted hashes, so they
+    can't be looked up by value -- we scan the (small) active set)."""
+    if SAP_RFC_MOCK:
+        return [{"qrId": b["qrId"], "sapUser": b["sapUser"], "fullName": b["fullName"],
+                 "validTo": None, "pinHash": b.get("pinHash", "")}
+                for b in _MOCK_BADGES if b["active"] == "X"]
+    conn = _hana_conn()
+    if conn is None:
+        raise RuntimeError("HANA is not configured for badge login.")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT \"QR_ID\",\"SAP_USER\",\"FULL_NAME\",\"VALID_TO\",\"PIN_HASH\" FROM "
+                    + LOGIN_QR_TABLE + " WHERE \"MANDT\"=? AND \"ACTIVE\"='X'", [MANDT])
+        rows = cur.fetchall()
+        cur.close()
+        return [{"qrId": (r[0] or "").strip(), "sapUser": (r[1] or "").strip(),
+                 "fullName": (r[2] or "").strip(), "validTo": r[3],
+                 "pinHash": (r[4] or "").strip()} for r in rows]
+    finally:
+        conn.close()
+
+
+def _pin_lookup(pin):
+    """The single ACTIVE badge whose PIN matches, or None (PINs are unique)."""
+    for b in _active_badges():
+        if b["pinHash"] and check_password_hash(b["pinHash"], pin):
+            return b
+    return None
+
+
+def _pin_in_use(pin, exclude_qr_id=None):
+    """True if some OTHER active badge already uses this PIN (keeps PINs unique
+    so a PIN alone identifies one operator)."""
+    b = _pin_lookup(pin)
+    return bool(b and b["qrId"] != (exclude_qr_id or ""))
 
 
 def _qr_touch(qr_id):
@@ -719,9 +693,71 @@ def _qr_touch(qr_id):
         pass
 
 
+def _client_info():
+    """(ip, user_agent) of the caller, truncated to the log column widths."""
+    xff = request.headers.get("X-Forwarded-For", "")
+    ip = (xff.split(",")[0].strip() if xff else "") or (request.remote_addr or "")
+    return ip[:45], request.headers.get("User-Agent", "")[:255]
+
+
+def _log_login(sap_user, qr_id, method):
+    """Append one login-audit row to ZSTM_LOGIN_LOG. Best-effort: any failure
+    (HANA down, table/grant missing) is swallowed so it never blocks a login."""
+    ip, ua = _client_info()
+    if SAP_RFC_MOCK:
+        _MOCK_LOGINS.append({"sapUser": sap_user, "qrId": qr_id, "method": method,
+                             "loginAt": datetime.now().isoformat(timespec="seconds"),
+                             "clientIp": ip, "userAgent": ua})
+        return
+    try:
+        conn = _hana_conn()
+        if conn is None:
+            return
+        try:
+            for attempt in range(2):
+                cur = conn.cursor()
+                try:
+                    cur.execute("SELECT COALESCE(MAX(TO_BIGINT(\"LOG_ID\")),0)+1 FROM " + LOGIN_LOG_TABLE +
+                                " WHERE \"MANDT\"=? AND \"LOG_ID\" LIKE_REGEXPR '^[0-9]+$'", [MANDT])
+                    row = cur.fetchone()
+                    log_id = str(int(row[0]) if row and row[0] is not None else 1).zfill(10)
+                    cur.execute("INSERT INTO " + LOGIN_LOG_TABLE + " (\"MANDT\",\"LOG_ID\",\"SAP_USER\","
+                                "\"QR_ID\",\"METHOD\",\"LOGIN_AT\",\"CLIENT_IP\",\"USER_AGENT\") "
+                                "VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,?,?)",
+                                [MANDT, log_id, sap_user, qr_id, method, ip, ua])
+                    conn.commit()
+                    cur.close()
+                    return
+                except Exception as exc:
+                    try:
+                        conn.rollback()
+                    except Exception:
+                        pass
+                    cur.close()
+                    if attempt == 0 and getattr(exc, "errorcode", None) == 301:
+                        continue      # LOG_ID clash under concurrency: recompute once
+                    raise
+        finally:
+            conn.close()
+    except Exception:
+        pass
+
+
+def _sign_in(row, method):
+    """Open the operator session for a resolved badge row and audit it."""
+    _qr_touch(row["qrId"])
+    session.permanent = True
+    session["user"] = row["sapUser"].upper()
+    session["fullName"] = row.get("fullName", "")
+    session["method"] = method.lower()
+    session["ts"] = datetime.now().isoformat(timespec="seconds")
+    _log_login(session["user"], row["qrId"], method)   # audit trail (best-effort)
+    return jsonify({"user": session["user"], "fullName": session["fullName"], "isAdmin": _is_admin()})
+
+
 @app.post("/api/auth/login-qr")
 def api_auth_login_qr():
-    """Sign in by scanning a badge QR (looks the token up in ZSTM_LOGIN_QR)."""
+    """Sign in by scanning a badge QR. The scan alone signs the operator in."""
     data = request.get_json(silent=True) or {}
     token = str(data.get("qr", "")).strip()
     if not token:
@@ -739,13 +775,29 @@ def api_auth_login_qr():
     vt = row.get("validTo")
     if vt and vt < date.today():
         return jsonify({"error": "This badge has expired."}), 401
-    _qr_touch(row["qrId"])
-    session.permanent = True
-    session["user"] = row["sapUser"].upper()
-    session["fullName"] = row.get("fullName", "")
-    session["method"] = "qr"
-    session["ts"] = datetime.now().isoformat(timespec="seconds")
-    return jsonify({"user": session["user"], "fullName": session["fullName"], "isAdmin": _is_admin()})
+    return _sign_in(row, "QR")
+
+
+@app.post("/api/auth/login-pin")
+def api_auth_login_pin():
+    """Sign in with a PIN only (fallback when the badge can't be scanned). The
+    PIN is unique, so it identifies exactly one active operator."""
+    data = request.get_json(silent=True) or {}
+    pin = str(data.get("pin", "")).strip()
+    if not _valid_pin(pin):
+        return jsonify({"error": "Enter your PIN."}), 400
+    try:
+        row = _pin_lookup(pin)
+    except RuntimeError as exc:
+        return jsonify({"error": str(exc)}), 500
+    except Exception as exc:
+        return jsonify({"error": "PIN lookup failed: " + str(exc)}), 502
+    if not row:
+        return jsonify({"error": "Wrong PIN."}), 401
+    vt = row.get("validTo")
+    if vt and vt < date.today():
+        return jsonify({"error": "This badge has expired."}), 401
+    return _sign_in(row, "PIN")
 
 
 def _qr_list():
@@ -768,13 +820,13 @@ def _qr_list():
         conn.close()
 
 
-def _qr_create(sap_user, full_name, token, admin):
+def _qr_create(sap_user, full_name, token, pin_hash, admin):
     if SAP_RFC_MOCK:
         qr_id = str(len(_MOCK_BADGES) + 1).zfill(10)
         b = {"qrId": qr_id, "sapUser": sap_user, "fullName": full_name,
-             "token": token, "active": "X", "lastLogin": ""}
+             "token": token, "pinHash": pin_hash, "active": "X", "lastLogin": ""}
         _MOCK_BADGES.append(b)
-        return b
+        return {k: v for k, v in b.items() if k != "pinHash"}
     conn = _hana_conn()
     if conn is None:
         raise RuntimeError("HANA is not configured.")
@@ -787,9 +839,9 @@ def _qr_create(sap_user, full_name, token, admin):
                 row = cur.fetchone()
                 qr_id = str(int(row[0]) if row and row[0] is not None else 1).zfill(10)
                 cur.execute("INSERT INTO " + LOGIN_QR_TABLE + " (\"MANDT\",\"QR_ID\",\"SAP_USER\","
-                            "\"FULL_NAME\",\"QR_TOKEN\",\"ACTIVE\",\"ERNAM\",\"CREATED_AT\") "
-                            "VALUES (?,?,?,?,?,'X',?,CURRENT_TIMESTAMP)",
-                            [MANDT, qr_id, sap_user, full_name, token, admin])
+                            "\"FULL_NAME\",\"QR_TOKEN\",\"PIN_HASH\",\"ACTIVE\",\"ERNAM\",\"CREATED_AT\") "
+                            "VALUES (?,?,?,?,?,?,'X',?,CURRENT_TIMESTAMP)",
+                            [MANDT, qr_id, sap_user, full_name, token, pin_hash, admin])
                 conn.commit()
                 cur.close()
                 return {"qrId": qr_id, "sapUser": sap_user, "fullName": full_name,
@@ -826,6 +878,30 @@ def _qr_set_active(qr_id, active):
         conn.close()
 
 
+def _qr_set_pin(qr_id, pin_hash):
+    """Set/reset a badge's PIN (stores a salted hash). Returns True if a row changed."""
+    if SAP_RFC_MOCK:
+        hit = False
+        for b in _MOCK_BADGES:
+            if b["qrId"] == qr_id:
+                b["pinHash"] = pin_hash
+                hit = True
+        return hit
+    conn = _hana_conn()
+    if conn is None:
+        raise RuntimeError("HANA is not configured.")
+    try:
+        cur = conn.cursor()
+        cur.execute("UPDATE " + LOGIN_QR_TABLE + " SET \"PIN_HASH\"=? WHERE \"MANDT\"=? AND \"QR_ID\"=?",
+                    [pin_hash, MANDT, qr_id])
+        n = cur.rowcount
+        conn.commit()
+        cur.close()
+        return n > 0
+    finally:
+        conn.close()
+
+
 @app.get("/api/admin/qr")
 @require_admin
 def api_admin_qr_list():
@@ -841,14 +917,40 @@ def api_admin_qr_create():
     data = request.get_json(silent=True) or {}
     sap_user = str(data.get("sapUser", "")).strip().upper()
     full_name = str(data.get("fullName", "")).strip()
+    pin = str(data.get("pin", "")).strip()
     if not sap_user:
         return jsonify({"error": "Enter the SAP user."}), 400
+    if not _valid_pin(pin):
+        return jsonify({"error": "PIN must be 4 to 8 digits."}), 400
     token = secrets.token_hex(10)          # 20-char opaque badge token
     try:
-        b = _qr_create(sap_user, full_name, token, session.get("user", ""))
+        if _pin_in_use(pin):
+            return jsonify({"error": "That PIN is already in use. Choose another."}), 409
+        b = _qr_create(sap_user, full_name, token, generate_password_hash(pin),
+                       session.get("user", ""))
     except Exception as exc:
         return jsonify({"error": "Could not create badge: " + str(exc)}), 502
     return jsonify(b), 201
+
+
+@app.post("/api/admin/qr/pin")
+@require_admin
+def api_admin_qr_pin():
+    """Reset a badge's PIN (admin only). Body: {qrId, pin}."""
+    data = request.get_json(silent=True) or {}
+    qr_id = str(data.get("qrId", "")).strip()
+    pin = str(data.get("pin", "")).strip()
+    if not qr_id:
+        return jsonify({"error": "Missing badge id."}), 400
+    if not _valid_pin(pin):
+        return jsonify({"error": "PIN must be 4 to 8 digits."}), 400
+    try:
+        if _pin_in_use(pin, exclude_qr_id=qr_id):
+            return jsonify({"error": "That PIN is already in use. Choose another."}), 409
+        _qr_set_pin(qr_id, generate_password_hash(pin))
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 502
+    return jsonify({"ok": True, "qrId": qr_id})
 
 
 @app.post("/api/admin/qr/toggle")
@@ -1161,5 +1263,53 @@ def _ssl_context():
     return "adhoc"
 
 
+def _bootstrap_badge(argv):
+    """One-off CLI to create the FIRST login badge (since there is no SAP login,
+    the first admin can't use the in-app screen). Usage:
+
+        python server/app.py --create-badge SAP_USER PIN ["Full Name"]
+
+    Prints the generated QR token so a badge card can be made. Add the user to
+    ADMIN_USERS in .env if they should manage badges. Runs against HANA (or the
+    in-memory mock store, which is pointless outside a live process)."""
+    sap_user = (argv[0] if len(argv) > 0 else "").strip().upper()
+    pin = (argv[1] if len(argv) > 1 else "").strip()
+    full = (argv[2] if len(argv) > 2 else "").strip()
+    if not sap_user or not _valid_pin(pin):
+        print("Usage: python server/app.py --create-badge SAP_USER PIN [\"Full Name\"]")
+        print("       PIN must be 4 to 8 digits.")
+        return 2
+    token = secrets.token_hex(10)
+    try:
+        _qr_create(sap_user, full, token, generate_password_hash(pin), sap_user)
+    except Exception as exc:
+        print("Could not create badge:", exc)
+        return 1
+    print("Badge created for %s. QR token (encode this on the card):\n\n    %s\n"
+          % (sap_user, token))
+    print("Add %s to ADMIN_USERS in server/.env to let them manage badges." % sap_user)
+    return 0
+
+
+def _seed_mock_badges():
+    """DEV ONLY (SAP_RFC_MOCK): auto-create a badge for each ADMIN_USERS entry so
+    the app is usable without HANA. Token = the username lower-cased, PIN =
+    MOCK_BADGE_PIN (default 1234). Never runs against a real system."""
+    base = os.environ.get("MOCK_BADGE_PIN", "1234")
+    for i, u in enumerate(sorted(ADMIN_USERS)):
+        token = u.lower()
+        pin = base if i == 0 else (base + str(i))   # keep PINs unique across seeds
+        _qr_create(u, u.title(), token, generate_password_hash(pin), "mock-seed")
+        print("[mock] seeded badge  user=%s  token=%s  pin=%s" % (u, token, pin))
+    if not ADMIN_USERS:
+        print("[mock] ADMIN_USERS is empty - no badge seeded; set it to sign in.")
+
+
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--create-badge":
+        sys.exit(_bootstrap_badge(sys.argv[2:]))
+    # Werkzeug's reloader runs this module twice; seed only in the child that
+    # actually serves (WERKZEUG_RUN_MAIN set), so the token prints once.
+    if SAP_RFC_MOCK and os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        _seed_mock_badges()
     app.run(host="0.0.0.0", port=PORT, debug=True, ssl_context=_ssl_context())
