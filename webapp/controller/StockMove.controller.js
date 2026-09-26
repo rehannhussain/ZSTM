@@ -48,9 +48,9 @@ sap.ui.define([
 
 		// ----- SAP availability ---------------------------------------------
 
-		_checkHealth: function () {
+		_checkHealth: function (bForce) {
 			var oModel = this.getView().getModel("form");
-			fetch("api/health")
+			fetch("api/health" + (bForce ? "?fresh=1" : ""))
 				.then(function (res) { return res.json(); })
 				.then(function (body) {
 					var bOnline = !!(body && body.ok);
@@ -67,7 +67,7 @@ sap.ui.define([
 		},
 
 		onRetryHealth: function () {
-			this._checkHealth();
+			this._checkHealth(true);       // force a fresh SAP ping (bypass cache)
 		},
 
 		// ----- SAP login (8-hour session) -----------------------------------

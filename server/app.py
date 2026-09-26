@@ -29,8 +29,10 @@ document number so the UI can be exercised end to end.
 import os
 import re
 import sys
+import time
 import secrets
 import mimetypes
+from threading import Lock
 from functools import wraps
 from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -979,19 +981,47 @@ def static_files(path):
 
 
 @app.get("/api/health")
-def api_health():
-    """Report whether SAP RFC is reachable (RFC_PING). Mock mode always ok."""
-    if SAP_RFC_MOCK:
-        return jsonify({"ok": True, "mock": True})
+def _rfc_ping():
+    """Open an RFC connection and ping it. Returns a health body dict."""
     try:
         conn = _rfc_conn()
         try:
             conn.ping()
         finally:
             conn.close()
-        return jsonify({"ok": True, "mock": False})
+        return {"ok": True, "mock": False}
     except Exception as exc:
-        return jsonify({"ok": False, "error": str(exc)})
+        return {"ok": False, "error": str(exc)}
+
+
+# A single RFC connect can take many seconds against a slow SAP link, and the UI
+# polls health every 20s -- so cache the result. A good result is trusted for
+# HEALTH_TTL; a bad one is re-checked sooner (HEALTH_FAIL_TTL) so recovery shows
+# quickly. `?fresh=1` (the UI's Retry button) always re-pings.
+HEALTH_TTL = float(os.environ.get("HEALTH_TTL_SECONDS", "30"))
+HEALTH_FAIL_TTL = float(os.environ.get("HEALTH_FAIL_TTL_SECONDS", "5"))
+_health = {"ts": 0.0, "body": None}
+_health_lock = Lock()
+
+
+@app.get("/api/health")
+def api_health():
+    """Report whether SAP RFC is reachable (RFC_PING), cached. Mock mode always ok."""
+    if SAP_RFC_MOCK:
+        return jsonify({"ok": True, "mock": True})
+    fresh = request.args.get("fresh") in ("1", "true", "yes")
+    now = time.monotonic()
+    if not fresh:
+        with _health_lock:
+            body, ts = _health["body"], _health["ts"]
+        if body is not None:
+            ttl = HEALTH_TTL if body.get("ok") else HEALTH_FAIL_TTL
+            if now - ts < ttl:
+                return jsonify(body)
+    body = _rfc_ping()                     # slow call, done outside the lock
+    with _health_lock:
+        _health["body"], _health["ts"] = body, time.monotonic()
+    return jsonify(body)
 
 
 def _resolve_fields(raw_qr):
@@ -1312,4 +1342,7 @@ if __name__ == "__main__":
     # actually serves (WERKZEUG_RUN_MAIN set), so the token prints once.
     if SAP_RFC_MOCK and os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         _seed_mock_badges()
-    app.run(host="0.0.0.0", port=PORT, debug=True, ssl_context=_ssl_context())
+    # threaded=True: a slow SAP RFC call must not block the single request thread
+    # (it would stall serving the UI5 assets and every other request).
+    app.run(host="0.0.0.0", port=PORT, debug=True, threaded=True,
+            ssl_context=_ssl_context())
