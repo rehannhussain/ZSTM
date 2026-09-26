@@ -205,10 +205,22 @@
 		.stmLoginNote { align-items: flex-start; }
 		.stmLoginNoteIcon { color: #0a7a3a; font-size: 0.85rem; margin-right: 6px; margin-top: 2px; }
 		.stmLoginNote .sapMText { color: #9aa0a8; font-size: 0.63rem; line-height: 1.45; }
+		/* login: "or" divider + Scan-badge button */
+		.stmLoginOr { display: flex; align-items: center; color: #a0a4ab; font-size: 0.7rem; }
+		.stmLoginOr:before, .stmLoginOr:after { content: ""; flex: 1; height: 1px; background: #e7e9ee; margin: 0 8px; }
+		.stmScanBadgeBtn .sapMBtnInner { border: 1.5px solid #1f3d6b !important; background: #fff !important; border-radius: 10px !important; height: 2.5rem; }
+		.stmScanBadgeBtn .sapMBtnContent, .stmScanBadgeBtn .sapMBtnIcon { color: #1f3d6b !important; font-weight: 600; }
+		.stmLoginBadgeHint { display: block; text-align: center; color: #a0a4ab; font-size: 0.6rem; margin-top: 5px; }
+		/* admin: badge rows */
+		.stmAdminAdd { padding: 4px 4px 2px; }
+		.stmBadgeUser .sapMText, .stmBadgeUser { font-weight: 600; font-size: 0.85rem; }
+		.stmBadgeRow { width: 100%; padding: 2px 4px; }
 	</style>
 
 	<!-- Local QR decoder (jsQR, MIT) for the iPad camera scan button. -->
 	<script src="lib/jsQR.js"></script>
+	<!-- Local QR encoder (qrcode-generator, MIT) to render printable login badges. -->
+	<script src="lib/qrcode.min.js"></script>
 
 	<!-- UI5 runtime is vendored locally at webapp/resources/ (OpenUI5 1.120.30,
 	     gitignored ~540MB, third-party) so the app loads at LAN speed and needs

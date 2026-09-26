@@ -27,6 +27,9 @@
 					<Button icon="sap-icon://person-placeholder" type="Transparent"
 						class="stmUserChip" text="{form>/operator}" tooltip="{form>/fullName}"
 						visible="{= ${form>/operator}.length &gt; 0 }"/>
+					<Button icon="sap-icon://key-user-settings" type="Transparent"
+						tooltip="{i18n>adminTitle}" press="onOpenAdmin"
+						visible="{form>/isAdmin}"/>
 					<Button icon="sap-icon://log" type="Transparent"
 						tooltip="{i18n>signOut}" press="onLogout"
 						visible="{= ${form>/operator}.length &gt; 0 }"/>

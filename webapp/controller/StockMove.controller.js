@@ -36,6 +36,7 @@ sap.ui.define([
 				toSloc: "3055",          // fixed destination storage location
 				operator: "",            // set from the SAP login (no manual entry)
 				fullName: "",
+				isAdmin: false,
 				scanText: "",
 				busy: false,
 				cart: [],
@@ -79,9 +80,7 @@ sap.ui.define([
 					return res.json();
 				})
 				.then(function (b) {
-					var oModel = this.getView().getModel("form");
-					oModel.setProperty("/operator", b.user || "");
-					oModel.setProperty("/fullName", b.fullName || "");
+					this._applyLogin(b, true);
 				}.bind(this))
 				.catch(function () { this._openLogin(); }.bind(this));
 		},
@@ -144,18 +143,52 @@ sap.ui.define([
 							{ title: this._t("loginTitle") });
 						return;
 					}
-					var oModel = this.getView().getModel("form");
-					oModel.setProperty("/operator", r.body.user || "");
-					oModel.setProperty("/fullName", r.body.fullName || "");
-					this.byId("loginDialog").close();
-					MessageToast.show(this._t("welcome", [r.body.fullName || r.body.user]));
-					var oScan = this.byId("inpScan");
-					if (oScan) { oScan.focus(); }
+					this._applyLogin(r.body);
 				}.bind(this))
 				.catch(function () {
 					oBtn.setBusy(false);
 					MessageBox.error(this._t("errNetwork"));
 				}.bind(this));
+		},
+
+		/** Apply a successful sign-in (password, QR, or /me restore). */
+		_applyLogin: function (body, bSilent) {
+			var oModel = this.getView().getModel("form");
+			oModel.setProperty("/operator", body.user || "");
+			oModel.setProperty("/fullName", body.fullName || "");
+			oModel.setProperty("/isAdmin", !!body.isAdmin);
+			var oLogin = this.byId("loginDialog");
+			if (oLogin && oLogin.isOpen()) { oLogin.close(); }
+			if (!bSilent) {
+				MessageToast.show(this._t("welcome", [body.fullName || body.user]));
+				var oScan = this.byId("inpScan");
+				if (oScan) { oScan.focus(); }
+			}
+		},
+
+		/** Badge (QR) sign-in: scan a badge from the login screen. */
+		onScanBadge: function () {
+			this._openCamera("badge");
+		},
+
+		_doQrLogin: function (sToken) {
+			fetch("api/auth/login-qr", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ qr: sToken })
+			})
+				.then(function (res) {
+					return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+				})
+				.then(function (r) {
+					if (!r.ok) {
+						MessageBox.error(r.body && r.body.error ? r.body.error : this._t("loginFailed"),
+							{ title: this._t("loginTitle") });
+						return;
+					}
+					this._applyLogin(r.body);
+				}.bind(this))
+				.catch(function () { MessageBox.error(this._t("errNetwork")); }.bind(this));
 		},
 
 		onLogout: function () {
@@ -164,6 +197,7 @@ sap.ui.define([
 					var oModel = this.getView().getModel("form");
 					oModel.setProperty("/operator", "");
 					oModel.setProperty("/fullName", "");
+					oModel.setProperty("/isAdmin", false);
 					oModel.setProperty("/cart", []);
 					oModel.setProperty("/history", []);
 					this._openLogin();
@@ -502,6 +536,12 @@ sap.ui.define([
 				MessageToast.show(this._t("errNoDest"));
 				return;
 			}
+			this._openCamera("doff");
+		},
+
+		/** Open the camera for a doff scan ("doff") or a badge login ("badge"). */
+		_openCamera: function (sTarget) {
+			this._camTarget = sTarget;
 			if (!window.jsQR) {
 				MessageBox.error(this._t("errQrLib"));
 				return;
@@ -534,6 +574,7 @@ sap.ui.define([
 				this.getView().addDependent(this._oScanDialog);
 			}
 
+			this._oScanDialog.setTitle(sTarget === "badge" ? this._t("scanBadgeTitle") : this._t("scanQrTitle"));
 			this._oScanDialog.open();
 			setTimeout(this._startCamera.bind(this), 0);
 		},
@@ -578,9 +619,13 @@ sap.ui.define([
 			if (code && code.data) {
 				this._scanning = false;
 				var sValue = String(code.data).trim();
-				this.getView().getModel("form").setProperty("/scanText", sValue);
 				this._oScanDialog.close();
-				this.onScan();               // decode -> resolve + add to the list
+				if (this._camTarget === "badge") {
+					this._doQrLogin(sValue);          // badge scan -> QR login
+				} else {
+					this.getView().getModel("form").setProperty("/scanText", sValue);
+					this.onScan();                    // doff scan -> resolve + add
+				}
 				return;
 			}
 			this._rafId = window.requestAnimationFrame(this._decodeTick.bind(this));
@@ -598,6 +643,105 @@ sap.ui.define([
 			}
 			var video = document.getElementById("stmQrVideo");
 			if (video) { video.srcObject = null; }
+		},
+
+		// ----- Admin: login badges (admins only) ----------------------------
+
+		onOpenAdmin: function () {
+			var oView = this.getView();
+			if (!oView.getModel("admin")) {
+				oView.setModel(new JSONModel({ badges: [], newUser: "", newName: "" }), "admin");
+			}
+			if (!this._pAdmin) {
+				this._pAdmin = Fragment.load({
+					id: oView.getId(), name: "stock.transfer.view.Admin", controller: this
+				}).then(function (oDlg) { oView.addDependent(oDlg); return oDlg; });
+			}
+			this._pAdmin.then(function (oDlg) { this._loadBadges(); oDlg.open(); }.bind(this));
+		},
+
+		_loadBadges: function () {
+			fetch("api/admin/qr")
+				.then(function (res) { return res.json().then(function (b) { return { ok: res.ok, body: b }; }); })
+				.then(function (r) {
+					if (r.ok) { this.getView().getModel("admin").setProperty("/badges", r.body.badges || []); }
+					else { MessageBox.error(r.body && r.body.error ? r.body.error : this._t("adminLoadFail")); }
+				}.bind(this))
+				.catch(function () { MessageBox.error(this._t("errNetwork")); }.bind(this));
+		},
+
+		onAdminClose: function () {
+			var oDlg = this.byId("adminDialog");
+			if (oDlg) { oDlg.close(); }
+		},
+
+		onAdminCreate: function () {
+			var oModel = this.getView().getModel("admin");
+			var sUser = (oModel.getProperty("/newUser") || "").trim();
+			var sName = (oModel.getProperty("/newName") || "").trim();
+			if (!sUser) { MessageToast.show(this._t("adminNeedUser")); return; }
+			fetch("api/admin/qr", {
+				method: "POST", headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ sapUser: sUser, fullName: sName })
+			})
+				.then(function (res) { return res.json().then(function (b) { return { ok: res.ok, body: b }; }); })
+				.then(function (r) {
+					if (!r.ok) { MessageBox.error(r.body && r.body.error ? r.body.error : this._t("adminAddFail")); return; }
+					oModel.setProperty("/newUser", "");
+					oModel.setProperty("/newName", "");
+					this._loadBadges();
+					this._printBadge(r.body.token, r.body.sapUser, r.body.fullName);
+				}.bind(this))
+				.catch(function () { MessageBox.error(this._t("errNetwork")); }.bind(this));
+		},
+
+		onAdminToggle: function (oEvent) {
+			var o = oEvent.getSource().getBindingContext("admin").getObject();
+			fetch("api/admin/qr/toggle", {
+				method: "POST", headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ qrId: o.qrId, active: o.active !== "X" })
+			})
+				.then(function (res) { return res.json().then(function (b) { return { ok: res.ok, body: b }; }); })
+				.then(function (r) {
+					if (r.ok) { this._loadBadges(); }
+					else { MessageBox.error(r.body && r.body.error ? r.body.error : this._t("adminAddFail")); }
+				}.bind(this))
+				.catch(function () { MessageBox.error(this._t("errNetwork")); }.bind(this));
+		},
+
+		onPrintBadge: function (oEvent) {
+			var o = oEvent.getSource().getBindingContext("admin").getObject();
+			this._printBadge(o.token, o.sapUser, o.fullName);
+		},
+
+		/** Render a printable badge card (QR + name) in a new window and print it. */
+		_printBadge: function (sToken, sUser, sName) {
+			if (!window.qrcode) { MessageBox.error(this._t("errQrLib")); return; }
+			var esc = function (s) {
+				return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+					return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c];
+				});
+			};
+			var qr = window.qrcode(0, "M");
+			qr.addData(sToken);
+			qr.make();
+			var sImg = qr.createDataURL(6, 4);
+			var sHtml =
+				"<!DOCTYPE html><html><head><meta charset='utf-8'><title>Badge " + esc(sUser) + "</title><style>" +
+				"body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;margin:0;padding:24px;display:flex;justify-content:center}" +
+				".card{width:230px;border:1px solid #d7dae0;border-radius:14px;overflow:hidden;text-align:center}" +
+				".hd{background:#1f3d6b;color:#fff;font-size:12px;font-weight:600;letter-spacing:.5px;padding:10px}" +
+				".bd{padding:16px}.bd img{width:150px;height:150px;image-rendering:pixelated}" +
+				".u{font-size:16px;font-weight:600;margin-top:8px}.n{font-size:12px;color:#666}.s{font-size:10px;color:#999;margin-top:4px}" +
+				"</style></head><body onload=\"setTimeout(function(){window.print();},250)\">" +
+				"<div class='card'><div class='hd'>KASSIM &middot; STOCK MOVEMENT</div><div class='bd'>" +
+				"<img src='" + sImg + "'><div class='u'>" + esc(sUser) + "</div><div class='n'>" + esc(sName) + "</div>" +
+				"<div class='s'>Scan to sign in</div></div></div></body></html>";
+			var w = window.open("", "_blank");
+			if (!w) { MessageBox.warning(this._t("adminPopup")); return; }
+			w.document.open();
+			w.document.write(sHtml);
+			w.document.close();
 		},
 
 		// ----- Reset ---------------------------------------------------------

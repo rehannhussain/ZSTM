@@ -48,6 +48,13 @@
 					icon="sap-icon://log" width="100%" press=".onLoginSubmit"
 					class="stmLoginBtn sapUiSmallMarginTop"/>
 
+				<Text text="{i18n>or}" class="stmLoginOr sapUiSmallMarginTop"/>
+
+				<Button id="scanBadgeBtn" text="{i18n>scanBadge}" type="Default"
+					icon="sap-icon://bar-code" width="100%" press=".onScanBadge"
+					class="stmScanBadgeBtn"/>
+				<Text text="{i18n>scanBadgeHint}" class="stmLoginBadgeHint"/>
+
 				<HBox class="stmLoginNote sapUiSmallMarginTop">
 					<core:Icon src="sap-icon://shield" class="stmLoginNoteIcon"/>
 					<Text text="{i18n>loginNote}"/>

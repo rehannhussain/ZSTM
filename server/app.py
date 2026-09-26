@@ -28,6 +28,7 @@ document number so the UI can be exercised end to end.
 
 import os
 import re
+import secrets
 import mimetypes
 from functools import wraps
 from datetime import date, datetime, timedelta
@@ -145,6 +146,13 @@ RFC_BASE = {k: v for k, v in {
 
 # Custom "Doff in Transit" log table (created by db/ZSTM_TRANSIT_D.sql).
 TRANSIT_TABLE = os.environ.get("ZSTM_TRANSIT_TABLE", "SAPHANADB.ZSTM_TRANSIT_D")
+
+# QR-badge login table (created by db/ZSTM_LOGIN_QR.sql) + who may manage badges.
+LOGIN_QR_TABLE = os.environ.get("ZSTM_LOGIN_QR_TABLE", "SAPHANADB.ZSTM_LOGIN_QR")
+ADMIN_USERS = set(u.strip().upper() for u in os.environ.get("ADMIN_USERS", "").split(",") if u.strip())
+# In-memory badge store used only in SAP_RFC_MOCK mode so the admin + QR-login
+# flow can be exercised without HANA. Never used against a real system.
+_MOCK_BADGES = []
 
 # --- Doff QR resolve (ZWV_DOF_D / ZWV_DOF_DD2) -----------------------------
 # The scanned QR is a beam/doff label like '261042-528-1446-01 TRIAL':
@@ -606,6 +614,22 @@ def require_login(fn):
     return wrapper
 
 
+def _is_admin():
+    return session.get("user", "").upper() in ADMIN_USERS
+
+
+def require_admin(fn):
+    """Guard: 401 if not signed in, 403 if the user is not in ADMIN_USERS."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not session.get("user"):
+            return jsonify({"error": "Not signed in.", "auth": False}), 401
+        if not _is_admin():
+            return jsonify({"error": "Not authorized."}), 403
+        return fn(*args, **kwargs)
+    return wrapper
+
+
 @app.post("/api/auth/login")
 def api_auth_login():
     data = request.get_json(silent=True) or {}
@@ -627,8 +651,9 @@ def api_auth_login():
     session.permanent = True
     session["user"] = user
     session["fullName"] = full
+    session["method"] = "sap"
     session["ts"] = datetime.now().isoformat(timespec="seconds")
-    return jsonify({"user": user, "fullName": full, "mock": SAP_RFC_MOCK})
+    return jsonify({"user": user, "fullName": full, "isAdmin": _is_admin(), "mock": SAP_RFC_MOCK})
 
 
 @app.post("/api/auth/logout")
@@ -640,8 +665,205 @@ def api_auth_logout():
 @app.get("/api/auth/me")
 def api_auth_me():
     if session.get("user"):
-        return jsonify({"user": session["user"], "fullName": session.get("fullName", "")})
+        return jsonify({"user": session["user"], "fullName": session.get("fullName", ""),
+                        "isAdmin": _is_admin()})
     return jsonify({"auth": False}), 401
+
+
+# ---------------------------------------------------------------------------
+# QR-badge login + badge administration (SAPHANADB.ZSTM_LOGIN_QR)
+# ---------------------------------------------------------------------------
+
+def _qr_lookup(token):
+    """Return {qrId, sapUser, fullName, active, validTo} for a scanned token, or None."""
+    if SAP_RFC_MOCK:
+        for b in _MOCK_BADGES:
+            if b["token"] == token:
+                return {"qrId": b["qrId"], "sapUser": b["sapUser"], "fullName": b["fullName"],
+                        "active": b["active"], "validTo": None}
+        return None
+    conn = _hana_conn()
+    if conn is None:
+        raise RuntimeError("HANA is not configured for badge login.")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT \"QR_ID\",\"SAP_USER\",\"FULL_NAME\",\"ACTIVE\",\"VALID_TO\" FROM "
+                    + LOGIN_QR_TABLE + " WHERE \"MANDT\"=? AND \"QR_TOKEN\"=?", [MANDT, token])
+        r = cur.fetchone()
+        cur.close()
+        if not r:
+            return None
+        return {"qrId": (r[0] or "").strip(), "sapUser": (r[1] or "").strip(),
+                "fullName": (r[2] or "").strip(), "active": (r[3] or "").strip(), "validTo": r[4]}
+    finally:
+        conn.close()
+
+
+def _qr_touch(qr_id):
+    """Best-effort LAST_LOGIN_AT update; never blocks a login."""
+    if SAP_RFC_MOCK:
+        return
+    try:
+        conn = _hana_conn()
+        if conn is None:
+            return
+        try:
+            cur = conn.cursor()
+            cur.execute("UPDATE " + LOGIN_QR_TABLE + " SET \"LAST_LOGIN_AT\"=CURRENT_TIMESTAMP "
+                        "WHERE \"MANDT\"=? AND \"QR_ID\"=?", [MANDT, qr_id])
+            conn.commit()
+            cur.close()
+        finally:
+            conn.close()
+    except Exception:
+        pass
+
+
+@app.post("/api/auth/login-qr")
+def api_auth_login_qr():
+    """Sign in by scanning a badge QR (looks the token up in ZSTM_LOGIN_QR)."""
+    data = request.get_json(silent=True) or {}
+    token = str(data.get("qr", "")).strip()
+    if not token:
+        return jsonify({"error": "Nothing scanned."}), 400
+    try:
+        row = _qr_lookup(token)
+    except RuntimeError as exc:
+        return jsonify({"error": str(exc)}), 500
+    except Exception as exc:
+        return jsonify({"error": "Badge lookup failed: " + str(exc)}), 502
+    if not row:
+        return jsonify({"error": "Badge not recognized."}), 401
+    if row.get("active") != "X":
+        return jsonify({"error": "This badge is disabled."}), 401
+    vt = row.get("validTo")
+    if vt and vt < date.today():
+        return jsonify({"error": "This badge has expired."}), 401
+    _qr_touch(row["qrId"])
+    session.permanent = True
+    session["user"] = row["sapUser"].upper()
+    session["fullName"] = row.get("fullName", "")
+    session["method"] = "qr"
+    session["ts"] = datetime.now().isoformat(timespec="seconds")
+    return jsonify({"user": session["user"], "fullName": session["fullName"], "isAdmin": _is_admin()})
+
+
+def _qr_list():
+    if SAP_RFC_MOCK:
+        return [dict(b, lastLogin="") for b in _MOCK_BADGES]
+    conn = _hana_conn()
+    if conn is None:
+        raise RuntimeError("HANA is not configured.")
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT \"QR_ID\",\"SAP_USER\",\"FULL_NAME\",\"QR_TOKEN\",\"ACTIVE\","
+                    "TO_VARCHAR(\"LAST_LOGIN_AT\",'YYYY-MM-DD HH24:MI') FROM " + LOGIN_QR_TABLE +
+                    " WHERE \"MANDT\"=? ORDER BY \"SAP_USER\"", [MANDT])
+        rows = cur.fetchall()
+        cur.close()
+        return [{"qrId": (r[0] or "").strip(), "sapUser": (r[1] or "").strip(),
+                 "fullName": (r[2] or "").strip(), "token": (r[3] or "").strip(),
+                 "active": (r[4] or "").strip(), "lastLogin": r[5] or ""} for r in rows]
+    finally:
+        conn.close()
+
+
+def _qr_create(sap_user, full_name, token, admin):
+    if SAP_RFC_MOCK:
+        qr_id = str(len(_MOCK_BADGES) + 1).zfill(10)
+        b = {"qrId": qr_id, "sapUser": sap_user, "fullName": full_name,
+             "token": token, "active": "X", "lastLogin": ""}
+        _MOCK_BADGES.append(b)
+        return b
+    conn = _hana_conn()
+    if conn is None:
+        raise RuntimeError("HANA is not configured.")
+    try:
+        for attempt in range(2):
+            cur = conn.cursor()
+            try:
+                cur.execute("SELECT COALESCE(MAX(TO_BIGINT(\"QR_ID\")),0)+1 FROM " + LOGIN_QR_TABLE +
+                            " WHERE \"MANDT\"=? AND \"QR_ID\" LIKE_REGEXPR '^[0-9]+$'", [MANDT])
+                row = cur.fetchone()
+                qr_id = str(int(row[0]) if row and row[0] is not None else 1).zfill(10)
+                cur.execute("INSERT INTO " + LOGIN_QR_TABLE + " (\"MANDT\",\"QR_ID\",\"SAP_USER\","
+                            "\"FULL_NAME\",\"QR_TOKEN\",\"ACTIVE\",\"ERNAM\",\"CREATED_AT\") "
+                            "VALUES (?,?,?,?,?,'X',?,CURRENT_TIMESTAMP)",
+                            [MANDT, qr_id, sap_user, full_name, token, admin])
+                conn.commit()
+                cur.close()
+                return {"qrId": qr_id, "sapUser": sap_user, "fullName": full_name,
+                        "token": token, "active": "X", "lastLogin": ""}
+            except Exception as exc:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+                cur.close()
+                if attempt == 0 and getattr(exc, "errorcode", None) == 301:
+                    continue
+                raise
+    finally:
+        conn.close()
+
+
+def _qr_set_active(qr_id, active):
+    if SAP_RFC_MOCK:
+        for b in _MOCK_BADGES:
+            if b["qrId"] == qr_id:
+                b["active"] = active
+        return
+    conn = _hana_conn()
+    if conn is None:
+        raise RuntimeError("HANA is not configured.")
+    try:
+        cur = conn.cursor()
+        cur.execute("UPDATE " + LOGIN_QR_TABLE + " SET \"ACTIVE\"=? WHERE \"MANDT\"=? AND \"QR_ID\"=?",
+                    [active, MANDT, qr_id])
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
+@app.get("/api/admin/qr")
+@require_admin
+def api_admin_qr_list():
+    try:
+        return jsonify({"badges": _qr_list()})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 502
+
+
+@app.post("/api/admin/qr")
+@require_admin
+def api_admin_qr_create():
+    data = request.get_json(silent=True) or {}
+    sap_user = str(data.get("sapUser", "")).strip().upper()
+    full_name = str(data.get("fullName", "")).strip()
+    if not sap_user:
+        return jsonify({"error": "Enter the SAP user."}), 400
+    token = secrets.token_hex(10)          # 20-char opaque badge token
+    try:
+        b = _qr_create(sap_user, full_name, token, session.get("user", ""))
+    except Exception as exc:
+        return jsonify({"error": "Could not create badge: " + str(exc)}), 502
+    return jsonify(b), 201
+
+
+@app.post("/api/admin/qr/toggle")
+@require_admin
+def api_admin_qr_toggle():
+    data = request.get_json(silent=True) or {}
+    qr_id = str(data.get("qrId", "")).strip()
+    active = "X" if data.get("active") else ""
+    if not qr_id:
+        return jsonify({"error": "Missing badge id."}), 400
+    try:
+        _qr_set_active(qr_id, active)
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 502
+    return jsonify({"ok": True, "qrId": qr_id, "active": active})
 
 
 @app.route("/")

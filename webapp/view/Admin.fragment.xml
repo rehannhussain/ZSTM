@@ -1,0 +1,54 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<Dialog id="adminDialog" title="{i18n>adminTitle}" stretchOnPhone="true"
+		contentWidth="32rem" class="stmAdminDlg">
+
+		<VBox class="stmAdminAdd">
+			<Text text="{i18n>adminAddHint}" class="stmMeta"/>
+			<HBox alignItems="End" class="sapUiTinyMarginTop">
+				<VBox width="40%">
+					<Label text="{i18n>loginUser}" class="stmLoginLbl"/>
+					<Input value="{admin>/newUser}" placeholder="{i18n>loginUserPh}"/>
+				</VBox>
+				<VBox width="45%" class="sapUiTinyMarginBegin">
+					<Label text="{i18n>adminFullName}" class="stmLoginLbl"/>
+					<Input value="{admin>/newName}" submit=".onAdminCreate"/>
+				</VBox>
+				<Button text="{i18n>adminAdd}" icon="sap-icon://add" type="Emphasized"
+					press=".onAdminCreate" class="sapUiTinyMarginBegin"/>
+			</HBox>
+		</VBox>
+
+		<List items="{admin>/badges}" noDataText="{i18n>adminEmpty}"
+			class="sapUiSizeCompact" showSeparators="Inner">
+			<CustomListItem>
+				<HBox class="stmBadgeRow" alignItems="Center" justifyContent="SpaceBetween">
+					<VBox class="stmBadgeInfo">
+						<Text text="{admin>sapUser}" class="stmBadgeUser"/>
+						<Text text="{admin>fullName}" class="stmMeta"/>
+						<Text class="stmMeta"
+							text="{= ${admin>lastLogin} ? ${i18n>adminLast} + ' ' + ${admin>lastLogin} : ${i18n>adminNever} }"/>
+					</VBox>
+					<VBox alignItems="End">
+						<ObjectStatus
+							text="{= ${admin>active} === 'X' ? ${i18n>adminActive} : ${i18n>adminRevoked} }"
+							state="{= ${admin>active} === 'X' ? 'Success' : 'None' }"/>
+						<HBox class="sapUiTinyMarginTop">
+							<Button icon="sap-icon://print" type="Transparent"
+								tooltip="{i18n>adminPrint}" press=".onPrintBadge"/>
+							<Button type="Transparent"
+								icon="{= ${admin>active} === 'X' ? 'sap-icon://cancel' : 'sap-icon://accept' }"
+								tooltip="{= ${admin>active} === 'X' ? ${i18n>adminRevokeBtn} : ${i18n>adminEnableBtn} }"
+								press=".onAdminToggle"/>
+						</HBox>
+					</VBox>
+				</HBox>
+			</CustomListItem>
+		</List>
+
+		<beginButton>
+			<Button text="{i18n>close}" press=".onAdminClose"/>
+		</beginButton>
+	</Dialog>
+</core:FragmentDefinition>
